@@ -11,6 +11,7 @@ Generated: Initial plan
 | 2026-01-17 13:48 | Create reader controls component | c4a72f6 |
 | 2026-01-17 13:55 | Add timing engine with punctuation pauses | cf5e85d |
 | 2026-01-17 14:26 | Add PDF upload component and text extraction | d19467d |
+| 2026-01-17 14:39 | Add section detection and citation regex patterns | a257289 |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -28,17 +29,17 @@ Generated: Initial plan
 - [x] Implement punctuation pause logic in timing engine
 - [x] Create PDF upload component (src/components/pdf/PDFUpload.tsx)
 - [x] Add PDF text extraction service (src/lib/pdf/extract-text.ts)
+- [x] Section detection for academic papers (src/lib/citation-parser/section-detector.ts)
+- [x] Citation detection regex patterns (src/lib/citation-parser/citation-detector.ts)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Section detection for academic papers
-- [ ] Citation detection regex patterns
-
-## Backlog
 - [ ] Interactive citation mode UI
 - [ ] Saved citations Supabase integration
+
+## Backlog
 - [ ] Settings page with reader preferences
 - [ ] Reading session persistence
 - [ ] Auto-speed increase feature
