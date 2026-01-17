@@ -16,7 +16,8 @@ Generated: Initial plan
 | 2026-01-17 16:08 | Add saved citations Supabase integration | 8dd02a6 |
 | 2026-01-17 16:17 | Add settings page with reader preferences | 99b235c |
 | 2026-01-17 16:30 | Add reading session persistence with auto-save | ccec884 |
-| 2026-01-17 16:46 | Add auto-speed increase feature | 251b8b1 |
+| 2026-01-17 16:46 | Add auto-speed increase feature | 2d69810 |
+| 2026-01-17 16:56 | Add context window display | TBD |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -47,13 +48,13 @@ Generated: Initial plan
 - [x] Auto-speed increase service (src/lib/rsvp/auto-speed.ts)
 - [x] useAutoSpeed hook for React integration (src/hooks/useAutoSpeed.ts)
 - [x] AutoSpeedSettings component (src/components/settings/AutoSpeedSettings.tsx)
+- [x] Context window display (src/components/rsvp/ContextWindow.tsx)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Context window display
+- [ ] Keyboard shortcuts
 
 ## Backlog
-- [ ] Keyboard shortcuts
 - [ ] Mobile gesture controls
