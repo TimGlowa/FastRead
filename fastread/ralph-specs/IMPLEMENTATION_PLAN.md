@@ -12,6 +12,7 @@ Generated: Initial plan
 | 2026-01-17 13:55 | Add timing engine with punctuation pauses | cf5e85d |
 | 2026-01-17 14:26 | Add PDF upload component and text extraction | d19467d |
 | 2026-01-17 14:39 | Add section detection and citation regex patterns | a257289 |
+| 2026-01-17 14:43 | Add interactive citation mode UI | c937bf9 |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -31,16 +32,17 @@ Generated: Initial plan
 - [x] Add PDF text extraction service (src/lib/pdf/extract-text.ts)
 - [x] Section detection for academic papers (src/lib/citation-parser/section-detector.ts)
 - [x] Citation detection regex patterns (src/lib/citation-parser/citation-detector.ts)
+- [x] Interactive citation mode UI (src/components/citations/)
+- [x] Citation store for state management (src/stores/citation-store.ts)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Interactive citation mode UI
 - [ ] Saved citations Supabase integration
+- [ ] Settings page with reader preferences
 
 ## Backlog
-- [ ] Settings page with reader preferences
 - [ ] Reading session persistence
 - [ ] Auto-speed increase feature
 - [ ] Context window display
