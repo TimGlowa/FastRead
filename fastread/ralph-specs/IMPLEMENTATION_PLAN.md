@@ -2,6 +2,16 @@
 
 Generated: Initial plan
 
+## Development Log
+
+| Date & Time | Task | Commit |
+|-------------|------|--------|
+| 2026-01-17 13:40 | Create Zustand store for reader state | ceadbdb |
+| 2026-01-17 13:42 | Create RSVP display component with ORP highlighting | 8933891 |
+| 2026-01-17 13:48 | Create reader controls component | c4a72f6 |
+| 2026-01-17 13:55 | Add timing engine with punctuation pauses | cf5e85d |
+| 2026-01-17 14:26 | Add PDF upload component and text extraction | d19467d |
+
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
 - [x] Basic tokenizer for RSVP text processing (src/lib/text-processor/tokenizer.ts)
@@ -10,23 +20,23 @@ Generated: Initial plan
 - [x] Supabase client setup (src/lib/supabase/)
 - [x] PWA registration setup (src/lib/pwa/)
 - [x] Base layout with fonts (src/app/layout.tsx)
+- [x] Create Zustand store for reader state (src/stores/reader-store.ts)
+- [x] Create RSVP display component (src/components/rsvp/RSVPDisplay.tsx)
+- [x] Add ORP calculation utility (included in RSVPDisplay.tsx)
+- [x] Create reader controls component (src/components/rsvp/ReaderControls.tsx)
+- [x] Add timing engine with requestAnimationFrame (src/lib/rsvp/timing-engine.ts)
+- [x] Implement punctuation pause logic in timing engine
+- [x] Create PDF upload component (src/components/pdf/PDFUpload.tsx)
+- [x] Add PDF text extraction service (src/lib/pdf/extract-text.ts)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Create Zustand store for reader state (src/stores/reader-store.ts)
-- [ ] Create RSVP display component (src/components/rsvp/RSVPDisplay.tsx)
-- [ ] Add ORP calculation utility (src/lib/text-processor/orp.ts)
-- [ ] Create reader controls component (src/components/rsvp/ReaderControls.tsx)
-- [ ] Add timing engine with requestAnimationFrame (src/lib/rsvp/timing-engine.ts)
-- [ ] Implement punctuation pause logic in timing engine
-- [ ] Create PDF upload component (src/components/pdf/PDFUpload.tsx)
-- [ ] Add PDF text extraction service (src/lib/pdf/extract-text.ts)
-
-## Backlog
 - [ ] Section detection for academic papers
 - [ ] Citation detection regex patterns
+
+## Backlog
 - [ ] Interactive citation mode UI
 - [ ] Saved citations Supabase integration
 - [ ] Settings page with reader preferences
