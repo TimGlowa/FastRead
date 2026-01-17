@@ -14,3 +14,13 @@ export {
   exportAsBibTeX,
   exportAsText,
 } from './citations';
+export {
+  getReadingProgress,
+  getAllReadingProgress,
+  saveReadingProgress,
+  deleteReadingProgress,
+  deleteAllReadingProgress,
+  calculateReadingStats,
+  getDeviceId,
+  type ReadingProgress,
+} from './reading-progress';
