@@ -13,6 +13,7 @@ Generated: Initial plan
 | 2026-01-17 14:26 | Add PDF upload component and text extraction | d19467d |
 | 2026-01-17 14:39 | Add section detection and citation regex patterns | a257289 |
 | 2026-01-17 14:43 | Add interactive citation mode UI | c937bf9 |
+| 2026-01-17 16:08 | Add saved citations Supabase integration | 8dd02a6 |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -34,16 +35,17 @@ Generated: Initial plan
 - [x] Citation detection regex patterns (src/lib/citation-parser/citation-detector.ts)
 - [x] Interactive citation mode UI (src/components/citations/)
 - [x] Citation store for state management (src/stores/citation-store.ts)
+- [x] Saved citations Supabase integration (src/lib/supabase/citations.ts)
+- [x] useSavedCitations hook for React integration (src/hooks/useSavedCitations.ts)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Saved citations Supabase integration
 - [ ] Settings page with reader preferences
+- [ ] Reading session persistence
 
 ## Backlog
-- [ ] Reading session persistence
 - [ ] Auto-speed increase feature
 - [ ] Context window display
 - [ ] Keyboard shortcuts
