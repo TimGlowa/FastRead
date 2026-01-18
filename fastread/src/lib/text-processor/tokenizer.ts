@@ -128,10 +128,7 @@ export function tokenize(text: string): Token[] {
   let currentIndex = 0;
 
   for (let i = 0; i < paragraphs.length; i++) {
-    const { tokens, nextIndex } = tokenizeParagraph(
-      paragraphs[i],
-      currentIndex
-    );
+    const { tokens, nextIndex } = tokenizeParagraph(paragraphs[i], currentIndex);
     allTokens.push(...tokens);
     currentIndex = nextIndex;
 

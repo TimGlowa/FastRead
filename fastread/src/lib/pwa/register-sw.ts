@@ -13,16 +13,9 @@ export function registerServiceWorker() {
         if (!newWorker) return;
 
         newWorker.addEventListener('statechange', () => {
-          if (
-            newWorker.state === 'installed' &&
-            navigator.serviceWorker.controller
-          ) {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // New version available
-            if (
-              window.confirm(
-                'A new version of FastRead is available. Reload to update?'
-              )
-            ) {
+            if (window.confirm('A new version of FastRead is available. Reload to update?')) {
               newWorker.postMessage({ type: 'SKIP_WAITING' });
               window.location.reload();
             }

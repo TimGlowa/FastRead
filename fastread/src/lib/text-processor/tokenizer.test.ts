@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  formatReadingTime,
-  getReadingTime,
-  getWordCount,
-  tokenize,
-} from './tokenizer';
+import { formatReadingTime, getReadingTime, getWordCount, tokenize } from './tokenizer';
 
 describe('tokenize', () => {
   it('should split simple text into tokens', () => {

@@ -18,7 +18,8 @@ Generated: Initial plan
 | 2026-01-17 16:30 | Add reading session persistence with auto-save | ccec884 |
 | 2026-01-17 16:46 | Add auto-speed increase feature | 2d69810 |
 | 2026-01-17 16:56 | Add context window display | bb7b4ca |
-| 2026-01-17 17:04 | Add keyboard shortcuts | TBD |
+| 2026-01-17 17:04 | Add keyboard shortcuts | 79d8686 |
+| 2026-01-17 17:44 | Add mobile gesture controls | 79b488f |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -52,11 +53,13 @@ Generated: Initial plan
 - [x] Context window display (src/components/rsvp/ContextWindow.tsx)
 - [x] Keyboard shortcuts hook (src/hooks/useKeyboardShortcuts.ts)
 - [x] Keyboard shortcuts help component (src/components/help/KeyboardShortcutsHelp.tsx)
+- [x] Mobile gesture controls hook (src/hooks/useTouchGestures.ts)
+- [x] Gesture guide help component (src/components/help/GestureGuide.tsx)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Mobile gesture controls
+- [ ] None - all planned features complete!
 
 ## Backlog

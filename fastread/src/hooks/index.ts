@@ -22,3 +22,10 @@ export {
   type UseKeyboardShortcutsOptions,
   type UseKeyboardShortcutsReturn,
 } from './useKeyboardShortcuts';
+
+export {
+  useTouchGestures,
+  type TouchGesture,
+  type UseTouchGesturesOptions,
+  type UseTouchGesturesReturn,
+} from './useTouchGestures';

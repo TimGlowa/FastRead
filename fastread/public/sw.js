@@ -1,8 +1,5 @@
 const CACHE_NAME = 'fastread-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/manifest.json',
-];
+const STATIC_ASSETS = ['/', '/manifest.json'];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -19,9 +16,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
       );
     })
   );
