@@ -17,7 +17,8 @@ Generated: Initial plan
 | 2026-01-17 16:17 | Add settings page with reader preferences | 99b235c |
 | 2026-01-17 16:30 | Add reading session persistence with auto-save | ccec884 |
 | 2026-01-17 16:46 | Add auto-speed increase feature | 2d69810 |
-| 2026-01-17 16:56 | Add context window display | TBD |
+| 2026-01-17 16:56 | Add context window display | bb7b4ca |
+| 2026-01-17 17:04 | Add keyboard shortcuts | TBD |
 
 ## Completed
 - [x] Project setup with Next.js 16, React 19, TypeScript
@@ -49,12 +50,13 @@ Generated: Initial plan
 - [x] useAutoSpeed hook for React integration (src/hooks/useAutoSpeed.ts)
 - [x] AutoSpeedSettings component (src/components/settings/AutoSpeedSettings.tsx)
 - [x] Context window display (src/components/rsvp/ContextWindow.tsx)
+- [x] Keyboard shortcuts hook (src/hooks/useKeyboardShortcuts.ts)
+- [x] Keyboard shortcuts help component (src/components/help/KeyboardShortcutsHelp.tsx)
 
 ## In Progress
 - [ ] None
 
 ## Up Next
-- [ ] Keyboard shortcuts
+- [ ] Mobile gesture controls
 
 ## Backlog
-- [ ] Mobile gesture controls

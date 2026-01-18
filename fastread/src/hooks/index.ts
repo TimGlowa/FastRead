@@ -15,3 +15,10 @@ export {
   type UseAutoSpeedOptions,
   type UseAutoSpeedReturn,
 } from './useAutoSpeed';
+
+export {
+  useKeyboardShortcuts,
+  type KeyboardShortcut,
+  type UseKeyboardShortcutsOptions,
+  type UseKeyboardShortcutsReturn,
+} from './useKeyboardShortcuts';
