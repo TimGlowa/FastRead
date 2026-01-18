@@ -7,6 +7,7 @@ import {
   calculateWordsToReachSpeed,
   createAutoSpeedController,
 } from './auto-speed';
+
 import type { AutoSpeedSettings } from '@/types';
 
 describe('AutoSpeedController', () => {
@@ -450,11 +451,9 @@ describe('calculateWordsToReachSpeed', () => {
 
 describe('createAutoSpeedController', () => {
   it('creates controller instance', () => {
-    const controller = createAutoSpeedController(
-      300,
-      DEFAULT_AUTO_SPEED_SETTINGS,
-      { onSpeedIncrease: vi.fn() }
-    );
+    const controller = createAutoSpeedController(300, DEFAULT_AUTO_SPEED_SETTINGS, {
+      onSpeedIncrease: vi.fn(),
+    });
 
     expect(controller).toBeInstanceOf(AutoSpeedController);
     expect(controller.getState().baseSpeed).toBe(300);

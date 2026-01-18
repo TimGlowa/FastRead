@@ -157,10 +157,7 @@ export async function saveReadingProgress(
 /**
  * Delete reading progress for a document
  */
-export async function deleteReadingProgress(
-  userId: string,
-  documentId: string
-): Promise<void> {
+export async function deleteReadingProgress(userId: string, documentId: string): Promise<void> {
   const { error } = await supabase
     .from('reading_progress')
     .delete()
@@ -177,10 +174,7 @@ export async function deleteReadingProgress(
  * Delete all reading progress for a user
  */
 export async function deleteAllReadingProgress(userId: string): Promise<void> {
-  const { error } = await supabase
-    .from('reading_progress')
-    .delete()
-    .eq('user_id', userId);
+  const { error } = await supabase.from('reading_progress').delete().eq('user_id', userId);
 
   if (error) {
     console.error('Error deleting all reading progress:', error);

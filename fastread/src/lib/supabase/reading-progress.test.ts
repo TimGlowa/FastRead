@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { calculateReadingStats, getDeviceId } from './reading-progress';
+
 import type { ReadingProgress } from './reading-progress';
 
 // Mock supabase client

@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { extractTextFromPDF, isPDFFile } from '@/lib/pdf/extract-text';
+import { useReaderStore } from '@/stores';
 
 import { PDFUpload } from './PDFUpload';
-import { useReaderStore } from '@/stores';
 
 // Mock PDF extraction
 vi.mock('@/lib/pdf/extract-text', () => ({
@@ -12,7 +14,6 @@ vi.mock('@/lib/pdf/extract-text', () => ({
 }));
 
 // Get mocked functions
-import { extractTextFromPDF, isPDFFile } from '@/lib/pdf/extract-text';
 const mockExtractTextFromPDF = vi.mocked(extractTextFromPDF);
 const mockIsPDFFile = vi.mocked(isPDFFile);
 

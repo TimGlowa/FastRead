@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
 
 import { ContextWindow } from './ContextWindow';
-import { useReaderStore } from '@/stores';
 
 describe('ContextWindow', () => {
   beforeEach(() => {

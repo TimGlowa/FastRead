@@ -31,10 +31,12 @@ const CITATION_PATTERNS = {
   apa: /\(([A-Z][a-z]+(?:\s+(?:&|and)\s+[A-Z][a-z]+)?(?:\s+et\s+al\.)?),\s*(\d{4})(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/g,
 
   // Harvard style: (Smith 2020), (Smith and Jones 2020)
-  harvard: /\(([A-Z][a-z]+(?:\s+(?:and|&)\s+[A-Z][a-z]+)?(?:\s+et\s+al\.)?)\s+(\d{4})(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/g,
+  harvard:
+    /\(([A-Z][a-z]+(?:\s+(?:and|&)\s+[A-Z][a-z]+)?(?:\s+et\s+al\.)?)\s+(\d{4})(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/g,
 
   // Multiple authors APA: (Smith, Jones, & Williams, 2020)
-  apaMultiple: /\(([A-Z][a-z]+(?:,\s+[A-Z][a-z]+)*(?:,?\s*&\s*[A-Z][a-z]+)?),\s*(\d{4})(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/g,
+  apaMultiple:
+    /\(([A-Z][a-z]+(?:,\s+[A-Z][a-z]+)*(?:,?\s*&\s*[A-Z][a-z]+)?),\s*(\d{4})(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/g,
 
   // Numeric citations: [1], [1,2,3], [1-5], [1, 2, 3]
   numeric: /\[(\d+(?:[-,]\s*\d+)*)\]/g,
@@ -114,7 +116,9 @@ function findAPACitations(text: string): CitationMatch[] {
   let multiMatch: RegExpExecArray | null;
   while ((multiMatch = CITATION_PATTERNS.apaMultiple.exec(text)) !== null) {
     const isDuplicate = matches.some(
-      (m) => m.startIndex === multiMatch!.index || (multiMatch!.index >= m.startIndex && multiMatch!.index <= m.endIndex)
+      (m) =>
+        m.startIndex === multiMatch!.index ||
+        (multiMatch!.index >= m.startIndex && multiMatch!.index <= m.endIndex)
     );
     if (!isDuplicate) {
       matches.push({

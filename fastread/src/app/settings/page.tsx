@@ -15,8 +15,18 @@ export default function SettingsPage() {
             className="p-2 -ml-2 rounded-lg hover:bg-bg-secondary transition-colors"
             aria-label="Back to reader"
           >
-            <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-6 h-6 text-text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </Link>
           <h1 className="text-xl font-semibold text-text-primary">Settings</h1>

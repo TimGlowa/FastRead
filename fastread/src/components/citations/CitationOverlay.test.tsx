@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
+import { useCitationStore } from '@/stores/citation-store';
 
 import { CitationOverlay } from './CitationOverlay';
-import { useCitationStore } from '@/stores/citation-store';
-import { useReaderStore } from '@/stores';
 
 describe('CitationOverlay', () => {
   beforeEach(() => {

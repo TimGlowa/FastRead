@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
 
 import { useTouchGestures } from './useTouchGestures';
-import { useReaderStore } from '@/stores';
 
 describe('useTouchGestures', () => {
   beforeEach(() => {
@@ -26,6 +27,14 @@ describe('useTouchGestures', () => {
       clientY,
       identifier: 0,
       target: document.body,
+      force: 0,
+      pageX: clientX,
+      pageY: clientY,
+      radiusX: 0,
+      radiusY: 0,
+      rotationAngle: 0,
+      screenX: clientX,
+      screenY: clientY,
     } as Touch;
 
     return new TouchEvent(type, {

@@ -8,13 +8,11 @@
  * - Basic metadata extraction
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
-import type { TextItem, TextMarkedContent } from 'pdfjs-dist/types/src/display/api';
-
-// Configure PDF.js worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-}
+import type {
+  PDFDocumentProxy,
+  TextItem,
+  TextMarkedContent,
+} from 'pdfjs-dist/types/src/display/api';
 
 export interface PDFExtractionResult {
   text: string;
@@ -30,6 +28,22 @@ export interface PDFMetadata {
   creationDate: Date | null;
 }
 
+// Lazy load pdfjs-dist to avoid SSR issues
+let pdfjsModule: typeof import('pdfjs-dist') | null = null;
+
+async function getPdfjs() {
+  if (pdfjsModule) return pdfjsModule;
+
+  // Only load in browser environment
+  if (typeof window === 'undefined') {
+    throw new Error('PDF extraction is only available in the browser');
+  }
+
+  pdfjsModule = await import('pdfjs-dist');
+  pdfjsModule.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+  return pdfjsModule;
+}
+
 /**
  * Check if a TextContent item is a TextItem (has 'str' property)
  */
@@ -40,10 +54,7 @@ function isTextItem(item: TextItem | TextMarkedContent): item is TextItem {
 /**
  * Extract text from a single PDF page
  */
-async function extractPageText(
-  pdf: pdfjsLib.PDFDocumentProxy,
-  pageNum: number
-): Promise<string> {
+async function extractPageText(pdf: PDFDocumentProxy, pageNum: number): Promise<string> {
   const page = await pdf.getPage(pageNum);
   const textContent = await page.getTextContent();
 
@@ -107,6 +118,9 @@ function parsePDFDate(dateStr: string | null): Date | null {
  * Extract text and metadata from a PDF file
  */
 export async function extractTextFromPDF(file: File): Promise<PDFExtractionResult> {
+  // Dynamically load pdfjs to avoid SSR issues
+  const pdfjsLib = await getPdfjs();
+
   // Convert File to ArrayBuffer
   const arrayBuffer = await file.arrayBuffer();
 

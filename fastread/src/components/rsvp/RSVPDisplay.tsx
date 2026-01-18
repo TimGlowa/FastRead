@@ -24,22 +24,32 @@ export function calculateORP(word: string): number {
  * Font size mappings for different settings
  */
 const FONT_SIZES = {
-  small: 'text-[24px] sm:text-[28px] md:text-[32px] lg:text-[36px]',
-  medium: 'text-[32px] sm:text-[36px] md:text-[42px] lg:text-[48px]',
-  large: 'text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px]',
-  xlarge: 'text-[48px] sm:text-[56px] md:text-[68px] lg:text-[80px]',
+  small: 'text-[36px] sm:text-[42px] md:text-[48px] lg:text-[56px]',
+  medium: 'text-[48px] sm:text-[56px] md:text-[64px] lg:text-[72px]',
+  large: 'text-[56px] sm:text-[64px] md:text-[80px] lg:text-[96px]',
+  xlarge: 'text-[64px] sm:text-[80px] md:text-[96px] lg:text-[120px]',
 } as const;
 
 export interface RSVPDisplayProps {
   className?: string;
+  /** Show the upcoming word preview in bottom right */
+  showPreview?: boolean;
+  /** Show WPM display */
+  showWPM?: boolean;
 }
 
-export function RSVPDisplay({ className = '' }: RSVPDisplayProps) {
+export function RSVPDisplay({
+  className = '',
+  showPreview = true,
+  showWPM = true,
+}: RSVPDisplayProps) {
   const currentWordIndex = useReaderStore((state) => state.currentWordIndex);
   const words = useReaderStore((state) => state.words);
   const settings = useReaderStore((state) => state.settings);
+  const speed = useReaderStore((state) => state.speed);
 
   const currentWord = words[currentWordIndex] || '';
+  const nextWord = words[currentWordIndex + 1] || '';
   const orpIndex = calculateORP(currentWord);
 
   const beforeORP = currentWord.slice(0, orpIndex);
@@ -51,44 +61,71 @@ export function RSVPDisplay({ className = '' }: RSVPDisplayProps) {
   if (words.length === 0) {
     return (
       <div
-        className={`flex items-center justify-center min-h-[200px] ${className}`}
+        className={`relative flex items-center justify-center min-h-[400px] bg-black ${className}`}
         role="status"
         aria-label="No document loaded"
       >
-        <p className="text-text-secondary text-lg">Upload a document to start reading</p>
+        <p className="text-gray-500 text-lg font-reading">Upload a document to start reading</p>
       </div>
     );
   }
 
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-[200px] select-none ${className}`}
+      className={`relative flex flex-col bg-black ${className}`}
       role="region"
       aria-label="Speed reader display"
       aria-live="polite"
       aria-atomic="true"
     >
-      {/* ORP guide line */}
-      <div className="w-px h-4 bg-orp-highlight mb-2" aria-hidden="true" />
+      {/* Top border/frame line */}
+      <div className="h-px bg-gray-800" aria-hidden="true" />
 
-      {/* Word display */}
-      <div className={`font-reading ${fontSizeClass} tracking-wide`} data-testid="rsvp-word">
-        <span className="text-text-primary">{beforeORP}</span>
-        <span className="text-orp-highlight font-bold" data-testid="rsvp-orp-char">
-          {orpChar}
-        </span>
-        <span className="text-text-primary">{afterORP}</span>
+      {/* Main display area */}
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] select-none relative">
+        {/* Top guide line */}
+        <div className="w-px h-16 bg-gray-800 mb-4" aria-hidden="true" />
+
+        {/* Word display */}
+        <div
+          className={`font-reading ${fontSizeClass} tracking-wider leading-none`}
+          data-testid="rsvp-word"
+        >
+          <span className="text-white">{beforeORP}</span>
+          <span className="text-red-500" data-testid="rsvp-orp-char">
+            {orpChar}
+          </span>
+          <span className="text-white">{afterORP}</span>
+        </div>
+
+        {/* Bottom guide line */}
+        <div className="w-px h-16 bg-gray-800 mt-4" aria-hidden="true" />
       </div>
 
-      {/* ORP guide line */}
-      <div className="w-px h-4 bg-orp-highlight mt-2" aria-hidden="true" />
+      {/* Bottom border/frame line */}
+      <div className="h-px bg-gray-800" aria-hidden="true" />
 
-      {/* Progress indicator */}
-      <div
-        className="mt-6 text-sm text-text-secondary"
-        aria-label={`Word ${currentWordIndex + 1} of ${words.length}`}
-      >
-        {currentWordIndex + 1} / {words.length}
+      {/* Bottom info area */}
+      <div className="h-24 flex items-center justify-end px-8 relative">
+        {/* WPM display - positioned on the right */}
+        {showWPM && (
+          <div
+            className="text-gray-600 font-reading text-2xl italic"
+            aria-label={`Current speed: ${speed} words per minute`}
+          >
+            {speed} wpm
+          </div>
+        )}
+
+        {/* Upcoming word preview - small box in bottom right corner */}
+        {showPreview && nextWord && (
+          <div
+            className="absolute bottom-2 right-2 bg-gray-900 border border-gray-700 rounded px-3 py-1 text-xs text-gray-400 font-reading"
+            aria-label={`Next word: ${nextWord}`}
+          >
+            {nextWord}
+          </div>
+        )}
       </div>
     </div>
   );

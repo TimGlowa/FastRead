@@ -1,7 +1,7 @@
 'use client';
 
-import { useCitationStore } from '@/stores/citation-store';
 import { CitationModeSelector } from '@/components/citations';
+import { useCitationStore } from '@/stores/citation-store';
 
 export interface CitationSettingsProps {
   className?: string;

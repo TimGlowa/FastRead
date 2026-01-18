@@ -28,10 +28,7 @@ interface SectionPattern {
 const SECTION_PATTERNS: SectionPattern[] = [
   {
     type: 'abstract',
-    patterns: [
-      /^(?:\d+\.?\s*)?abstract\s*$/i,
-      /^(?:\d+\.?\s*)?summary\s*$/i,
-    ],
+    patterns: [/^(?:\d+\.?\s*)?abstract\s*$/i, /^(?:\d+\.?\s*)?summary\s*$/i],
   },
   {
     type: 'introduction',

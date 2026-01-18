@@ -58,10 +58,18 @@ describe('RSVPDisplay', () => {
     expect(orpChar).toHaveTextContent('e'); // 5-char word, ORP at index 1
   });
 
-  it('displays correct progress', () => {
+  it('displays WPM indicator', () => {
     useReaderStore.getState().setWords(['one', 'two', 'three']);
-    render(<RSVPDisplay />);
-    expect(screen.getByText('1 / 3')).toBeInTheDocument();
+    render(<RSVPDisplay showWPM={true} />);
+    expect(screen.getByText(/300/)).toBeInTheDocument();
+    expect(screen.getByText(/wpm/)).toBeInTheDocument();
+  });
+
+  it('displays next word preview', () => {
+    useReaderStore.getState().setWords(['first', 'second', 'third']);
+    render(<RSVPDisplay showPreview={true} />);
+    // Should show next word "second" in preview
+    expect(screen.getByLabelText(/Next word: second/)).toBeInTheDocument();
   });
 
   it('updates when word index changes', () => {
@@ -75,7 +83,8 @@ describe('RSVPDisplay', () => {
     });
 
     expect(screen.getByTestId('rsvp-word')).toHaveTextContent('second');
-    expect(screen.getByText('2 / 3')).toBeInTheDocument();
+    // Next word preview should now show "third"
+    expect(screen.getByLabelText(/Next word: third/)).toBeInTheDocument();
   });
 
   it('has accessibility attributes', () => {

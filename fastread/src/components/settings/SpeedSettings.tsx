@@ -7,7 +7,6 @@ export interface SpeedSettingsProps {
 }
 
 export function SpeedSettings({ className = '' }: SpeedSettingsProps) {
-  const speed = useReaderStore((state) => state.speed);
   const minSpeed = useReaderStore((state) => state.minSpeed);
   const maxSpeed = useReaderStore((state) => state.maxSpeed);
   const setSpeed = useReaderStore((state) => state.setSpeed);

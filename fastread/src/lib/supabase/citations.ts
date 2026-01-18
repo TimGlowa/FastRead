@@ -5,6 +5,7 @@
  */
 
 import { supabase, type Database } from './client';
+
 import type { SavedCitation } from '@/types';
 
 type SavedCitationRow = Database['public']['Tables']['saved_citations']['Row'];
@@ -35,9 +36,7 @@ function rowToSavedCitation(row: SavedCitationRow): SavedCitation {
  */
 function parseCitationText(text: string): { authors: string[]; year: number; pages?: string } {
   // Try to parse APA-style citation: (Smith, 2020) or (Smith & Jones, 2020, p. 45)
-  const apaMatch = text.match(
-    /\(([^,]+)(?:,\s*(\d{4}))(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/
-  );
+  const apaMatch = text.match(/\(([^,]+)(?:,\s*(\d{4}))(?:,\s*pp?\.\s*(\d+(?:-\d+)?))?\)/);
 
   if (apaMatch) {
     const authorStr = apaMatch[1];
@@ -131,11 +130,7 @@ export async function saveCitation(
 ): Promise<SavedCitation> {
   const insert = savedCitationToInsert(citation, userId);
 
-  const { data, error } = await supabase
-    .from('saved_citations')
-    .insert(insert)
-    .select()
-    .single();
+  const { data, error } = await supabase.from('saved_citations').insert(insert).select().single();
 
   if (error) {
     console.error('Error saving citation:', error);
@@ -154,10 +149,7 @@ export async function saveCitations(
 ): Promise<SavedCitation[]> {
   const inserts = citations.map((c) => savedCitationToInsert(c, userId));
 
-  const { data, error } = await supabase
-    .from('saved_citations')
-    .insert(inserts)
-    .select();
+  const { data, error } = await supabase.from('saved_citations').insert(inserts).select();
 
   if (error) {
     console.error('Error saving citations:', error);
@@ -206,10 +198,7 @@ export async function deleteCitationsForDocument(
  * Delete all citations for a user
  */
 export async function deleteAllCitations(userId: string): Promise<void> {
-  const { error } = await supabase
-    .from('saved_citations')
-    .delete()
-    .eq('user_id', userId);
+  const { error } = await supabase.from('saved_citations').delete().eq('user_id', userId);
 
   if (error) {
     console.error('Error deleting all citations:', error);

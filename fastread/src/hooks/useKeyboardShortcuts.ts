@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useMemo, useState } from 'react';
 
 import { useReaderStore } from '@/stores';
 
@@ -58,7 +58,13 @@ export function useKeyboardShortcuts(
   const { enabled = true, skipWordCount = 10, onShortcutTriggered } = options;
 
   const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
+  // Track enabled state for return value
+  const [isEnabledState, setIsEnabledState] = useState(enabled);
+
+  // Keep ref in sync with prop changes
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
 
   // Get store actions
   const togglePlayPause = useReaderStore((state) => state.togglePlayPause);
@@ -73,67 +79,83 @@ export function useKeyboardShortcuts(
   const decreaseSpeed = useReaderStore((state) => state.decreaseSpeed);
   const isPlaying = useReaderStore((state) => state.isPlaying);
 
-  // Define shortcuts
-  const shortcuts: KeyboardShortcut[] = [
-    {
-      key: 'Space',
-      description: 'Play/Pause',
-      action: togglePlayPause,
-    },
-    {
-      key: 'ArrowLeft',
-      description: isPlaying ? `Skip back ${skipWordCount} words` : 'Previous word',
-      action: () => (isPlaying ? skipBackward(skipWordCount) : previousWord()),
-    },
-    {
-      key: 'ArrowRight',
-      description: isPlaying ? `Skip forward ${skipWordCount} words` : 'Next word',
-      action: () => (isPlaying ? skipForward(skipWordCount) : nextWord()),
-    },
-    {
-      key: 'ArrowUp',
-      description: 'Increase speed',
-      action: increaseSpeed,
-    },
-    {
-      key: 'ArrowDown',
-      description: 'Decrease speed',
-      action: decreaseSpeed,
-    },
-    {
-      key: 'Home',
-      description: 'Go to start',
-      action: goToStart,
-    },
-    {
-      key: 'End',
-      description: 'Go to end',
-      action: goToEnd,
-    },
-    {
-      key: 'Escape',
-      description: 'Pause',
-      action: pause,
-    },
-    {
-      key: 'r',
-      description: 'Reset to start',
-      action: () => {
-        pause();
-        goToStart();
+  // Memoize shortcuts to prevent recreating on every render
+  const shortcuts = useMemo<KeyboardShortcut[]>(
+    () => [
+      {
+        key: 'Space',
+        description: 'Play/Pause',
+        action: togglePlayPause,
       },
-    },
-    {
-      key: '[',
-      description: 'Decrease speed',
-      action: decreaseSpeed,
-    },
-    {
-      key: ']',
-      description: 'Increase speed',
-      action: increaseSpeed,
-    },
-  ];
+      {
+        key: 'ArrowLeft',
+        description: isPlaying ? `Skip back ${skipWordCount} words` : 'Previous word',
+        action: () => (isPlaying ? skipBackward(skipWordCount) : previousWord()),
+      },
+      {
+        key: 'ArrowRight',
+        description: isPlaying ? `Skip forward ${skipWordCount} words` : 'Next word',
+        action: () => (isPlaying ? skipForward(skipWordCount) : nextWord()),
+      },
+      {
+        key: 'ArrowUp',
+        description: 'Increase speed',
+        action: increaseSpeed,
+      },
+      {
+        key: 'ArrowDown',
+        description: 'Decrease speed',
+        action: decreaseSpeed,
+      },
+      {
+        key: 'Home',
+        description: 'Go to start',
+        action: goToStart,
+      },
+      {
+        key: 'End',
+        description: 'Go to end',
+        action: goToEnd,
+      },
+      {
+        key: 'Escape',
+        description: 'Pause',
+        action: pause,
+      },
+      {
+        key: 'r',
+        description: 'Reset to start',
+        action: () => {
+          pause();
+          goToStart();
+        },
+      },
+      {
+        key: '[',
+        description: 'Decrease speed',
+        action: decreaseSpeed,
+      },
+      {
+        key: ']',
+        description: 'Increase speed',
+        action: increaseSpeed,
+      },
+    ],
+    [
+      togglePlayPause,
+      isPlaying,
+      skipWordCount,
+      skipBackward,
+      previousWord,
+      skipForward,
+      nextWord,
+      increaseSpeed,
+      decreaseSpeed,
+      goToStart,
+      goToEnd,
+      pause,
+    ]
+  );
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -141,11 +163,7 @@ export function useKeyboardShortcuts(
 
       // Ignore if user is typing in an input, textarea, or contenteditable
       const target = event.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
       }
 
@@ -239,15 +257,17 @@ export function useKeyboardShortcuts(
 
   const enable = useCallback(() => {
     enabledRef.current = true;
+    setIsEnabledState(true);
   }, []);
 
   const disable = useCallback(() => {
     enabledRef.current = false;
+    setIsEnabledState(false);
   }, []);
 
   return {
     shortcuts,
-    isEnabled: enabledRef.current,
+    isEnabled: isEnabledState,
     enable,
     disable,
   };

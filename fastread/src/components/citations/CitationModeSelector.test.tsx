@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { useCitationStore } from '@/stores/citation-store';
 
 import { CitationModeSelector } from './CitationModeSelector';
-import { useCitationStore } from '@/stores/citation-store';
 
 describe('CitationModeSelector', () => {
   beforeEach(() => {

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { AutoSpeedSettings } from './AutoSpeedSettings';
+
 import type { AutoSpeedSettings as AutoSpeedSettingsType } from '@/types';
 
 describe('AutoSpeedSettings', () => {
@@ -19,14 +20,18 @@ describe('AutoSpeedSettings', () => {
   });
 
   it('renders the component', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.getByText('Auto-Speed')).toBeInTheDocument();
     expect(screen.getByTestId('auto-speed-toggle')).toBeInTheDocument();
   });
 
   it('renders toggle in correct state', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     const toggle = screen.getByTestId('auto-speed-toggle');
     expect(toggle).toHaveAttribute('aria-checked', 'false');
@@ -38,14 +43,18 @@ describe('AutoSpeedSettings', () => {
       enabled: true,
     };
 
-    render(<AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     const toggle = screen.getByTestId('auto-speed-toggle');
     expect(toggle).toHaveAttribute('aria-checked', 'true');
   });
 
   it('toggles enabled state', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     const toggle = screen.getByTestId('auto-speed-toggle');
     fireEvent.click(toggle);
@@ -57,7 +66,9 @@ describe('AutoSpeedSettings', () => {
   });
 
   it('renders word interval options', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.getByTestId('interval-50')).toBeInTheDocument();
     expect(screen.getByTestId('interval-75')).toBeInTheDocument();
@@ -72,7 +83,9 @@ describe('AutoSpeedSettings', () => {
       enabled: true,
     };
 
-    render(<AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     fireEvent.click(screen.getByTestId('interval-50'));
 
@@ -83,7 +96,9 @@ describe('AutoSpeedSettings', () => {
   });
 
   it('renders speed increment options', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.getByTestId('increment-10')).toBeInTheDocument();
     expect(screen.getByTestId('increment-15')).toBeInTheDocument();
@@ -98,7 +113,9 @@ describe('AutoSpeedSettings', () => {
       enabled: true,
     };
 
-    render(<AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     fireEvent.click(screen.getByTestId('increment-50'));
 
@@ -109,7 +126,9 @@ describe('AutoSpeedSettings', () => {
   });
 
   it('renders max speed options', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.getByTestId('max-speed-400')).toBeInTheDocument();
     expect(screen.getByTestId('max-speed-500')).toBeInTheDocument();
@@ -125,7 +144,9 @@ describe('AutoSpeedSettings', () => {
       enabled: true,
     };
 
-    render(<AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     fireEvent.click(screen.getByTestId('max-speed-800'));
 
@@ -141,7 +162,9 @@ describe('AutoSpeedSettings', () => {
       enabled: true,
     };
 
-    render(<AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={enabledSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.getByText(/Starting at 300 WPM/)).toBeInTheDocument();
     // Check for the preview text that mentions reaching the max speed
@@ -149,7 +172,9 @@ describe('AutoSpeedSettings', () => {
   });
 
   it('does not show preview info when disabled', () => {
-    render(<AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />);
+    render(
+      <AutoSpeedSettings settings={defaultSettings} onSettingsChange={mockOnSettingsChange} />
+    );
 
     expect(screen.queryByText(/Starting at 300 WPM/)).not.toBeInTheDocument();
   });

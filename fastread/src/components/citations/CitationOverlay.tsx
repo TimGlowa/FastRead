@@ -2,8 +2,9 @@
 
 import { useEffect, useCallback, useRef } from 'react';
 
-import { useCitationStore } from '@/stores/citation-store';
 import { useReaderStore } from '@/stores';
+import { useCitationStore } from '@/stores/citation-store';
+
 import type { DetectedCitation, SavedCitation } from '@/types';
 
 export interface CitationOverlayProps {
@@ -26,26 +27,34 @@ export function CitationOverlay({ className = '', onSave, onSkip }: CitationOver
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  // Auto-continue after timeout
-  useEffect(() => {
-    if (!isOverlayVisible || interactiveTimeout <= 0) return;
+  // Get surrounding context for the citation
+  const getContextAroundCitation = useCallback(
+    (citation: DetectedCitation): string => {
+      if (!document) return citation.rawText;
 
-    // Start progress animation
-    if (progressRef.current) {
-      progressRef.current.style.transition = `width ${interactiveTimeout}ms linear`;
-      progressRef.current.style.width = '0%';
+      const text = document.rawText;
+      const start = Math.max(0, citation.startIndex - 50);
+      const end = Math.min(text.length, citation.endIndex + 50);
+
+      let context = text.slice(start, end);
+      if (start > 0) context = '...' + context;
+      if (end < text.length) context = context + '...';
+
+      return context;
+    },
+    [document]
+  );
+
+  const handleSkip = useCallback(() => {
+    // Cancel auto-continue timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
-      handleSkip();
-    }, interactiveTimeout);
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [isOverlayVisible, interactiveTimeout]);
+    hideOverlay();
+    onSkip?.();
+    play();
+  }, [hideOverlay, play, onSkip]);
 
   const handleSave = useCallback(() => {
     if (!activeCitation || !document) return;
@@ -71,18 +80,37 @@ export function CitationOverlay({ className = '', onSave, onSkip }: CitationOver
     onSave?.(savedCitation);
     hideOverlay();
     play();
-  }, [activeCitation, document, currentWordIndex, saveCitation, hideOverlay, play, onSave]);
+  }, [
+    activeCitation,
+    document,
+    currentWordIndex,
+    saveCitation,
+    hideOverlay,
+    play,
+    onSave,
+    getContextAroundCitation,
+  ]);
 
-  const handleSkip = useCallback(() => {
-    // Cancel auto-continue timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+  // Auto-continue after timeout
+  useEffect(() => {
+    if (!isOverlayVisible || interactiveTimeout <= 0) return;
+
+    // Start progress animation
+    if (progressRef.current) {
+      progressRef.current.style.transition = `width ${interactiveTimeout}ms linear`;
+      progressRef.current.style.width = '0%';
     }
 
-    hideOverlay();
-    onSkip?.();
-    play();
-  }, [hideOverlay, play, onSkip]);
+    timeoutRef.current = setTimeout(() => {
+      handleSkip();
+    }, interactiveTimeout);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isOverlayVisible, interactiveTimeout, handleSkip]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -104,21 +132,6 @@ export function CitationOverlay({ className = '', onSave, onSkip }: CitationOver
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
-
-  // Get surrounding context for the citation
-  function getContextAroundCitation(citation: DetectedCitation): string {
-    if (!document) return citation.rawText;
-
-    const text = document.rawText;
-    const start = Math.max(0, citation.startIndex - 50);
-    const end = Math.min(text.length, citation.endIndex + 50);
-
-    let context = text.slice(start, end);
-    if (start > 0) context = '...' + context;
-    if (end < text.length) context = context + '...';
-
-    return context;
-  }
 
   if (!isOverlayVisible || !activeCitation) {
     return null;

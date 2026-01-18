@@ -1,0 +1,164 @@
+@import 'tailwindcss';
+
+/* ============================================
+   FastRead Theme Configuration
+   Based on specs/ui-design.md
+   ============================================ */
+
+/* Light Theme Variables */
+:root,
+[data-theme='light'] {
+  --background: #ffffff;
+  --surface: #f5f5f5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --accent: #3b82f6;
+  --orp-highlight: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+}
+
+/* Dark Theme Variables (Default) */
+[data-theme='dark'] {
+  --background: #0a0a0a;
+  --surface: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent: #60a5fa;
+  --orp-highlight: #f87171;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+}
+
+/* Sepia Theme Variables */
+[data-theme='sepia'] {
+  --background: #f4ecd8;
+  --surface: #e8dcc8;
+  --text-primary: #433422;
+  --text-secondary: #6b5b4a;
+  --accent: #8b6914;
+  --orp-highlight: #c45500;
+  --success: #5d7a3a;
+  --warning: #a67c00;
+  --error: #9a3412;
+}
+
+/* System preference: default to dark if user prefers dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --background: #0a0a0a;
+    --surface: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent: #60a5fa;
+    --orp-highlight: #f87171;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --error: #f87171;
+  }
+}
+
+/* ============================================
+   Tailwind CSS v4 Theme Configuration
+   ============================================ */
+@theme inline {
+  /* Colors from CSS variables */
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-orp-highlight: var(--orp-highlight);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  /* Font families */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-reading: 'Literata', 'Georgia', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Reading font sizes - Mobile */
+  --text-reading-sm: 24px;
+  --text-reading-md: 32px;
+  --text-reading-lg: 40px;
+  --text-reading-xl: 48px;
+
+  /* Responsive breakpoints (Tailwind v4 defaults) */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* Animation durations */
+  --duration-page-transition: 200ms;
+  --duration-button-press: 100ms;
+  --duration-modal: 250ms;
+
+  /* Touch target minimum size */
+  --touch-target-min: 44px;
+
+  /* Spacing */
+  --spacing-touch-gap: 8px;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   Button Press Animation
+   ============================================ */
+.btn-press:active {
+  transform: scale(0.95);
+  transition: transform var(--duration-button-press) ease-out;
+}
+
+/* ============================================
+   Focus Styles for Accessibility
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Scrollbar Styling (for webkit browsers)
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
+}

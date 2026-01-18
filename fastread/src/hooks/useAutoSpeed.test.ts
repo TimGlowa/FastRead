@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
 
 import { useAutoSpeed } from './useAutoSpeed';
-import { useReaderStore } from '@/stores';
+
 import type { AutoSpeedSettings } from '@/types';
 
 describe('useAutoSpeed', () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCitationStore } from '@/stores/citation-store';
+
 import type { CitationMode } from '@/types';
 
 export interface CitationModeSelectorProps {
@@ -69,7 +70,10 @@ const MODES: ModeOption[] = [
   },
 ];
 
-export function CitationModeSelector({ className = '', compact = false }: CitationModeSelectorProps) {
+export function CitationModeSelector({
+  className = '',
+  compact = false,
+}: CitationModeSelectorProps) {
   const citationMode = useCitationStore((state) => state.citationMode);
   const setCitationMode = useCitationStore((state) => state.setCitationMode);
 
@@ -132,7 +136,12 @@ export function CitationModeSelector({ className = '', compact = false }: Citati
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
           </button>

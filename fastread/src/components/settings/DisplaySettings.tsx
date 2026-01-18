@@ -1,6 +1,7 @@
 'use client';
 
 import { useReaderStore } from '@/stores';
+
 import type { ReaderSettings } from '@/types';
 
 export interface DisplaySettingsProps {

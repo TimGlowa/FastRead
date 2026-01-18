@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { useCitationStore } from '@/stores/citation-store';
 import {
   getSavedCitations,
   getSavedCitationsForDocument,
@@ -13,6 +12,8 @@ import {
   exportAsBibTeX,
   exportAsText,
 } from '@/lib/supabase/citations';
+import { useCitationStore } from '@/stores/citation-store';
+
 import type { SavedCitation } from '@/types';
 
 export interface UseSavedCitationsOptions {

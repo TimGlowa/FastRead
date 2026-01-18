@@ -1,8 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import {
+  getSavedCitations,
+  saveCitation as saveCitationToDb,
+  deleteCitation as deleteCitationFromDb,
+  deleteAllCitations,
+  citationExists,
+} from '@/lib/supabase/citations';
+import { useCitationStore } from '@/stores/citation-store';
 
 import { useSavedCitations } from './useSavedCitations';
-import { useCitationStore } from '@/stores/citation-store';
 
 // Mock supabase citations service
 vi.mock('@/lib/supabase/citations', () => ({
@@ -19,14 +27,6 @@ vi.mock('@/lib/supabase/citations', () => ({
     citations.map((c: { rawText: string }) => c.rawText).join('\n')
   ),
 }));
-
-import {
-  getSavedCitations,
-  saveCitation as saveCitationToDb,
-  deleteCitation as deleteCitationFromDb,
-  deleteAllCitations,
-  citationExists,
-} from '@/lib/supabase/citations';
 
 const mockGetSavedCitations = vi.mocked(getSavedCitations);
 const mockSaveCitationToDb = vi.mocked(saveCitationToDb);
@@ -56,9 +56,7 @@ describe('useSavedCitations', () => {
 
     mockGetSavedCitations.mockResolvedValue(mockCitations);
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: 'user-1', autoSync: true })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: 'user-1', autoSync: true }));
 
     expect(result.current.isLoading).toBe(true);
 
@@ -77,9 +75,7 @@ describe('useSavedCitations', () => {
   });
 
   it('saves citation to store when no userId', async () => {
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: null, autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: null, autoSync: false }));
 
     const newCitation = {
       documentId: 'doc-1',
@@ -112,9 +108,7 @@ describe('useSavedCitations', () => {
       position: 50,
     });
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: 'user-1', autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: 'user-1', autoSync: false }));
 
     await act(async () => {
       await result.current.saveCitation({
@@ -134,9 +128,7 @@ describe('useSavedCitations', () => {
   it('prevents duplicate citations', async () => {
     mockCitationExists.mockResolvedValue(true);
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: 'user-1', autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: 'user-1', autoSync: false }));
 
     await act(async () => {
       const saved = await result.current.saveCitation({
@@ -168,9 +160,7 @@ describe('useSavedCitations', () => {
       position: 0,
     });
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: 'user-1', autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: 'user-1', autoSync: false }));
 
     expect(result.current.citations).toHaveLength(1);
 
@@ -207,9 +197,7 @@ describe('useSavedCitations', () => {
       position: 0,
     });
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: 'user-1', autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: 'user-1', autoSync: false }));
 
     expect(result.current.citations).toHaveLength(2);
 
@@ -233,9 +221,7 @@ describe('useSavedCitations', () => {
       position: 0,
     });
 
-    const { result } = renderHook(() =>
-      useSavedCitations({ userId: null, autoSync: false })
-    );
+    const { result } = renderHook(() => useSavedCitations({ userId: null, autoSync: false }));
 
     const bibtex = result.current.exportBibTeX();
     expect(bibtex).toContain('(Export, 2024)');

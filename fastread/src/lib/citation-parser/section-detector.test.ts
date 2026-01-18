@@ -188,8 +188,22 @@ Extra data.`;
 describe('getIncludedSections', () => {
   it('filters out excluded sections', () => {
     const sections = [
-      { type: 'introduction' as const, title: 'Intro', content: 'a', startIndex: 0, endIndex: 10, included: true },
-      { type: 'references' as const, title: 'Refs', content: 'b', startIndex: 11, endIndex: 20, included: false },
+      {
+        type: 'introduction' as const,
+        title: 'Intro',
+        content: 'a',
+        startIndex: 0,
+        endIndex: 10,
+        included: true,
+      },
+      {
+        type: 'references' as const,
+        title: 'Refs',
+        content: 'b',
+        startIndex: 11,
+        endIndex: 20,
+        included: false,
+      },
     ];
 
     const included = getIncludedSections(sections);
@@ -202,9 +216,30 @@ describe('getIncludedSections', () => {
 describe('getIncludedText', () => {
   it('combines text from included sections', () => {
     const sections = [
-      { type: 'introduction' as const, title: 'Intro', content: 'Hello', startIndex: 0, endIndex: 10, included: true },
-      { type: 'methods' as const, title: 'Methods', content: 'World', startIndex: 11, endIndex: 20, included: true },
-      { type: 'references' as const, title: 'Refs', content: 'Skip', startIndex: 21, endIndex: 30, included: false },
+      {
+        type: 'introduction' as const,
+        title: 'Intro',
+        content: 'Hello',
+        startIndex: 0,
+        endIndex: 10,
+        included: true,
+      },
+      {
+        type: 'methods' as const,
+        title: 'Methods',
+        content: 'World',
+        startIndex: 11,
+        endIndex: 20,
+        included: true,
+      },
+      {
+        type: 'references' as const,
+        title: 'Refs',
+        content: 'Skip',
+        startIndex: 21,
+        endIndex: 30,
+        included: false,
+      },
     ];
 
     const text = getIncludedText(sections);

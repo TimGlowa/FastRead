@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
 
 import { DisplaySettings } from './DisplaySettings';
-import { useReaderStore } from '@/stores';
 
 describe('DisplaySettings', () => {
   beforeEach(() => {

@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useReaderStore } from '@/stores';
 import {
-  AutoSpeedController,
+  type AutoSpeedController,
   DEFAULT_AUTO_SPEED_SETTINGS,
   createAutoSpeedController,
 } from '@/lib/rsvp/auto-speed';
+import { useReaderStore } from '@/stores';
+
 import type { AutoSpeedSettings } from '@/types';
 
 export interface UseAutoSpeedOptions {

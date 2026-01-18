@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { useReaderStore } from '@/stores';
 
 import { SpeedSettings } from './SpeedSettings';
-import { useReaderStore } from '@/stores';
 
 describe('SpeedSettings', () => {
   beforeEach(() => {

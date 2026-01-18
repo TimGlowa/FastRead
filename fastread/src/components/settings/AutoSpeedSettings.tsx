@@ -89,9 +89,7 @@ export function AutoSpeedSettings({ settings, onSettingsChange }: AutoSpeedSetti
 
       {/* Word Interval */}
       <div className={`space-y-2 ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
-        <label className="text-sm font-medium text-text-primary">
-          Increase Every
-        </label>
+        <label className="text-sm font-medium text-text-primary">Increase Every</label>
         <div className="flex flex-wrap gap-2">
           {WORD_INTERVAL_OPTIONS.map((option) => (
             <button
@@ -113,9 +111,7 @@ export function AutoSpeedSettings({ settings, onSettingsChange }: AutoSpeedSetti
 
       {/* Speed Increment */}
       <div className={`space-y-2 ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
-        <label className="text-sm font-medium text-text-primary">
-          Speed Increase Amount
-        </label>
+        <label className="text-sm font-medium text-text-primary">Speed Increase Amount</label>
         <div className="flex flex-wrap gap-2">
           {SPEED_INCREMENT_OPTIONS.map((option) => (
             <button
@@ -137,9 +133,7 @@ export function AutoSpeedSettings({ settings, onSettingsChange }: AutoSpeedSetti
 
       {/* Max Speed */}
       <div className={`space-y-2 ${!isEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
-        <label className="text-sm font-medium text-text-primary">
-          Maximum Speed
-        </label>
+        <label className="text-sm font-medium text-text-primary">Maximum Speed</label>
         <div className="flex flex-wrap gap-2">
           {MAX_SPEED_OPTIONS.map((option) => (
             <button
@@ -169,7 +163,9 @@ export function AutoSpeedSettings({ settings, onSettingsChange }: AutoSpeedSetti
               {Math.ceil((maxSpeed - 300) / increaseAmount) * increaseEveryWords}
             </span>{' '}
             words (~
-            {Math.round((Math.ceil((maxSpeed - 300) / increaseAmount) * increaseEveryWords) / 250)}{' '}
+            {Math.round(
+              (Math.ceil((maxSpeed - 300) / increaseAmount) * increaseEveryWords) / 250
+            )}{' '}
             pages).
           </p>
         </div>

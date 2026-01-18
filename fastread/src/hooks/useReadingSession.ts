@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useReaderStore } from '@/stores';
 import {
   getReadingProgress,
   saveReadingProgress,
@@ -10,6 +9,7 @@ import {
   calculateReadingStats,
   type ReadingProgress,
 } from '@/lib/supabase/reading-progress';
+import { useReaderStore } from '@/stores';
 
 export interface UseReadingSessionOptions {
   userId: string | null;

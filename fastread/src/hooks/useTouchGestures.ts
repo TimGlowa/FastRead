@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 
 import { useReaderStore } from '@/stores';
 
 export interface TouchGesture {
-  type: 'tap' | 'swipe-left' | 'swipe-right' | 'swipe-up' | 'swipe-down' | 'double-tap' | 'long-press';
+  type:
+    | 'tap'
+    | 'swipe-left'
+    | 'swipe-right'
+    | 'swipe-up'
+    | 'swipe-down'
+    | 'double-tap'
+    | 'long-press';
   description: string;
 }
 
@@ -59,9 +66,7 @@ interface TouchState {
  * - Swipe Down: Decrease speed
  * - Long Press: Show settings/help
  */
-export function useTouchGestures(
-  options: UseTouchGesturesOptions = {}
-): UseTouchGesturesReturn {
+export function useTouchGestures(options: UseTouchGesturesOptions = {}): UseTouchGesturesReturn {
   const {
     enabled = true,
     targetRef,
@@ -74,7 +79,12 @@ export function useTouchGestures(
   } = options;
 
   const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
+  const [isEnabledState, setIsEnabledState] = useState(enabled);
+
+  // Keep ref in sync with prop changes
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
 
   const touchStateRef = useRef<TouchState>({
     startX: 0,
@@ -171,7 +181,10 @@ export function useTouchGestures(
       const absDeltaY = Math.abs(deltaY);
 
       // Check for swipe gesture
-      if (deltaTime < swipeTimeLimit && (absDeltaX > swipeThreshold || absDeltaY > swipeThreshold)) {
+      if (
+        deltaTime < swipeTimeLimit &&
+        (absDeltaX > swipeThreshold || absDeltaY > swipeThreshold)
+      ) {
         if (absDeltaX > absDeltaY) {
           // Horizontal swipe
           if (deltaX > 0) {
@@ -273,15 +286,17 @@ export function useTouchGestures(
 
   const enable = useCallback(() => {
     enabledRef.current = true;
+    setIsEnabledState(true);
   }, []);
 
   const disable = useCallback(() => {
     enabledRef.current = false;
+    setIsEnabledState(false);
   }, []);
 
   return {
     gestures,
-    isEnabled: enabledRef.current,
+    isEnabled: isEnabledState,
     enable,
     disable,
   };

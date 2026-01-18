@@ -2,9 +2,10 @@
 
 import { useCallback, useState, useRef } from 'react';
 
-import { useReaderStore } from '@/stores';
 import { extractTextFromPDF, isPDFFile, formatFileSize } from '@/lib/pdf/extract-text';
 import { tokenize } from '@/lib/text-processor';
+import { useReaderStore } from '@/stores';
+
 import type { ParsedDocument } from '@/types';
 
 export interface PDFUploadProps {
@@ -256,9 +257,7 @@ export function PDFUpload({
             <p className="text-text-primary font-medium mb-1">
               {isDragging ? 'Drop PDF here' : 'Upload a PDF'}
             </p>
-            <p className="text-sm text-text-secondary">
-              Drag and drop or click to select
-            </p>
+            <p className="text-sm text-text-secondary">Drag and drop or click to select</p>
             <p className="text-xs text-text-secondary mt-2">Maximum file size: 50MB</p>
           </div>
         )}

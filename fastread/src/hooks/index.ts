@@ -10,11 +10,7 @@ export {
   type UseReadingSessionReturn,
 } from './useReadingSession';
 
-export {
-  useAutoSpeed,
-  type UseAutoSpeedOptions,
-  type UseAutoSpeedReturn,
-} from './useAutoSpeed';
+export { useAutoSpeed, type UseAutoSpeedOptions, type UseAutoSpeedReturn } from './useAutoSpeed';
 
 export {
   useKeyboardShortcuts,

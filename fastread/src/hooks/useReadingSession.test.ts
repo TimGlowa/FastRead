@@ -1,8 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import {
+  getReadingProgress,
+  saveReadingProgress,
+  deleteReadingProgress,
+} from '@/lib/supabase/reading-progress';
+import { useReaderStore } from '@/stores';
 
 import { useReadingSession } from './useReadingSession';
-import { useReaderStore } from '@/stores';
 
 // Mock supabase reading progress service
 vi.mock('@/lib/supabase/reading-progress', () => ({
@@ -15,12 +21,6 @@ vi.mock('@/lib/supabase/reading-progress', () => ({
     estimatedTimeRemaining: 1.5,
   })),
 }));
-
-import {
-  getReadingProgress,
-  saveReadingProgress,
-  deleteReadingProgress,
-} from '@/lib/supabase/reading-progress';
 
 const mockGetReadingProgress = vi.mocked(getReadingProgress);
 const mockSaveReadingProgress = vi.mocked(saveReadingProgress);
