@@ -29,7 +29,7 @@ describe('ReaderControls', () => {
 
     it('shows WPM label', () => {
       render(<ReaderControls />);
-      expect(screen.getByText('WPM')).toBeInTheDocument();
+      expect(screen.getByText('wpm')).toBeInTheDocument();
     });
 
     it('has accessibility role', () => {
@@ -177,11 +177,11 @@ describe('ReaderControls', () => {
       render(<ReaderControls />);
       expect(screen.getByTestId('increase-speed-btn')).toHaveAttribute(
         'aria-label',
-        'Increase speed'
+        'Increase speed (pauses reading)'
       );
       expect(screen.getByTestId('decrease-speed-btn')).toHaveAttribute(
         'aria-label',
-        'Decrease speed'
+        'Decrease speed (pauses reading)'
       );
     });
 

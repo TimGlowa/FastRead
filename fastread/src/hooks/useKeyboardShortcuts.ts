@@ -78,6 +78,7 @@ export function useKeyboardShortcuts(
   const increaseSpeed = useReaderStore((state) => state.increaseSpeed);
   const decreaseSpeed = useReaderStore((state) => state.decreaseSpeed);
   const isPlaying = useReaderStore((state) => state.isPlaying);
+  const toggleRampPaused = useReaderStore((state) => state.toggleRampPaused);
 
   // Memoize shortcuts to prevent recreating on every render
   const shortcuts = useMemo<KeyboardShortcut[]>(
@@ -167,8 +168,10 @@ export function useKeyboardShortcuts(
         return;
       }
 
-      // Get current playing state from store
-      const currentIsPlaying = useReaderStore.getState().isPlaying;
+      // Get current state from store
+      const state = useReaderStore.getState();
+      const currentIsPlaying = state.isPlaying;
+      const speedControlMode = state.speedControlMode;
 
       // Find matching shortcut
       let shortcut: KeyboardShortcut | undefined;
@@ -176,6 +179,12 @@ export function useKeyboardShortcuts(
       switch (event.code) {
         case 'Space':
           event.preventDefault();
+          // If playing in a ramp mode, toggle ramp pause instead of play/pause
+          if (currentIsPlaying && speedControlMode !== 'fixed') {
+            toggleRampPaused();
+            onShortcutTriggered?.('Space', 'Toggle ramp pause');
+            return;
+          }
           shortcut = shortcuts.find((s) => s.key === 'Space');
           break;
         case 'ArrowLeft':
@@ -242,6 +251,7 @@ export function useKeyboardShortcuts(
       skipForward,
       previousWord,
       nextWord,
+      toggleRampPaused,
     ]
   );
 

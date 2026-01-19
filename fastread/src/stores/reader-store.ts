@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 
-import type { ReaderSettings, ParsedDocument, CitationMode } from '@/types';
+import type {
+  ReaderSettings,
+  ParsedDocument,
+  CitationMode,
+  SpeedControlMode,
+  RampPhase,
+  SpeedModeConfig,
+} from '@/types';
 
 export interface ReaderState {
   // Document
@@ -20,6 +27,13 @@ export interface ReaderState {
   // Settings
   settings: ReaderSettings;
   citationMode: CitationMode;
+
+  // Speed control mode
+  speedControlMode: SpeedControlMode;
+  speedModeConfig: SpeedModeConfig | null;
+  rampPhase: RampPhase;
+  isRamping: boolean;
+  isRampPaused: boolean; // Ramp paused but playback continues
 
   // Actions - Document
   setDocument: (document: ParsedDocument | null) => void;
@@ -48,6 +62,14 @@ export interface ReaderState {
   setSettings: (settings: Partial<ReaderSettings>) => void;
   setCitationMode: (mode: CitationMode) => void;
 
+  // Actions - Speed Mode
+  setSpeedControlMode: (mode: SpeedControlMode, config?: SpeedModeConfig) => void;
+  setSpeedModeConfig: (config: SpeedModeConfig) => void;
+  setRampPhase: (phase: RampPhase) => void;
+  setIsRamping: (ramping: boolean) => void;
+  setIsRampPaused: (paused: boolean) => void;
+  toggleRampPaused: () => void;
+
   // Actions - Reset
   reset: () => void;
 }
@@ -74,6 +96,12 @@ const initialState = {
   speedStep: 25,
   settings: DEFAULT_SETTINGS,
   citationMode: 'skip' as CitationMode,
+  // Speed control mode defaults
+  speedControlMode: 'fixed' as SpeedControlMode,
+  speedModeConfig: null as SpeedModeConfig | null,
+  rampPhase: 'idle' as RampPhase,
+  isRamping: false,
+  isRampPaused: false,
 };
 
 export const useReaderStore = create<ReaderState>((set, get) => ({
@@ -156,6 +184,30 @@ export const useReaderStore = create<ReaderState>((set, get) => ({
     })),
 
   setCitationMode: (mode) => set({ citationMode: mode }),
+
+  // Speed mode actions
+  setSpeedControlMode: (mode, config) =>
+    set({
+      speedControlMode: mode,
+      speedModeConfig: config ?? null,
+      rampPhase: 'idle',
+      isRamping: false,
+    }),
+
+  setSpeedModeConfig: (config) => set({ speedModeConfig: config }),
+
+  setRampPhase: (phase) => set({ rampPhase: phase }),
+
+  setIsRamping: (ramping) => set({ isRamping: ramping }),
+
+  setIsRampPaused: (paused) => set({ isRampPaused: paused }),
+
+  toggleRampPaused: () =>
+    set((state) => {
+      // Only toggle if we're in a ramp mode (not fixed)
+      if (state.speedControlMode === 'fixed') return {};
+      return { isRampPaused: !state.isRampPaused };
+    }),
 
   // Reset
   reset: () => set(initialState),

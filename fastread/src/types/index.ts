@@ -11,6 +11,9 @@ export interface ParsedDocument {
   citations: DetectedCitation[];
   parsingConfidence: number;
   createdAt: Date;
+  // Additional metadata for display
+  journalCitation?: string | null;
+  abstract?: string | null;
 }
 
 export interface Section {
@@ -97,3 +100,34 @@ export interface CitationSettings {
 }
 
 export type CitationMode = 'skip' | 'read' | 'interactive';
+
+// Speed Control Types
+export type SpeedControlMode = 'fixed' | 'training' | 'demo';
+export type RampPhase = 'idle' | 'stabilization' | 'acceleration' | 'plateau' | 'cooldown';
+
+export interface FixedModeConfig {
+  speed: number;
+}
+
+export interface TrainingRampConfig {
+  startSpeed: number;
+  maxSpeed: number;
+  stabilizationWords: number;
+  accelerationWords: number;
+  stabilizationRate: number;
+  accelerationRate: number;
+  strainDropback: number;
+  strainCooldownWords: number;
+  pauseThresholdMs: number;
+  rewindThresholdWords: number;
+}
+
+export interface DemoRampConfig {
+  startSpeed: number;
+  maxSpeed: number;
+  rampDurationSeconds: number;
+  reducePunctuationPauses: boolean;
+  punctuationReductionFactor: number;
+}
+
+export type SpeedModeConfig = FixedModeConfig | TrainingRampConfig | DemoRampConfig;

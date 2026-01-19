@@ -25,3 +25,9 @@ export {
   type UseTouchGesturesOptions,
   type UseTouchGesturesReturn,
 } from './useTouchGestures';
+
+export {
+  useSpeedController,
+  type UseSpeedControllerOptions,
+  type UseSpeedControllerReturn,
+} from './useSpeedController';
