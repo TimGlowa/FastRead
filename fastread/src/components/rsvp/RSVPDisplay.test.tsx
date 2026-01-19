@@ -58,15 +58,26 @@ describe('RSVPDisplay', () => {
     expect(orpChar).toHaveTextContent('e'); // 5-char word, ORP at index 1
   });
 
-  it('displays WPM indicator', () => {
+  it('displays WPM indicator when paused', () => {
     useReaderStore.getState().setWords(['one', 'two', 'three']);
+    // Ensure paused state (controls visible)
+    useReaderStore.getState().pause();
     render(<RSVPDisplay showWPM={true} />);
     expect(screen.getByText(/300/)).toBeInTheDocument();
     expect(screen.getByText(/wpm/)).toBeInTheDocument();
   });
 
-  it('displays next word preview', () => {
+  it('hides controls when playing', () => {
+    useReaderStore.getState().setWords(['one', 'two', 'three']);
+    useReaderStore.getState().play();
+    render(<RSVPDisplay showWPM={true} showPreview={true} />);
+    // Controls should be hidden during playback
+    expect(screen.queryByText(/wpm/)).not.toBeInTheDocument();
+  });
+
+  it('displays next word preview when paused', () => {
     useReaderStore.getState().setWords(['first', 'second', 'third']);
+    useReaderStore.getState().pause();
     render(<RSVPDisplay showPreview={true} />);
     // Should show next word "second" in preview
     expect(screen.getByLabelText(/Next word: second/)).toBeInTheDocument();
@@ -74,6 +85,7 @@ describe('RSVPDisplay', () => {
 
   it('updates when word index changes', () => {
     useReaderStore.getState().setWords(['first', 'second', 'third']);
+    useReaderStore.getState().pause();
     render(<RSVPDisplay />);
 
     expect(screen.getByTestId('rsvp-word')).toHaveTextContent('first');
@@ -114,5 +126,33 @@ describe('RSVPDisplay', () => {
     render(<RSVPDisplay />);
     const orpChar = screen.getByTestId('rsvp-orp-char');
     expect(orpChar).toHaveTextContent('n'); // mag[n]ificent
+  });
+
+  it('renders vertically framed stage with center ticks', () => {
+    useReaderStore.getState().setWords(['hello']);
+    render(<RSVPDisplay />);
+
+    // Stage should exist
+    expect(screen.getByTestId('rsvp-stage')).toBeInTheDocument();
+
+    // Center ticks should be present
+    expect(screen.getByTestId('rsvp-tick-top')).toBeInTheDocument();
+    expect(screen.getByTestId('rsvp-tick-bottom')).toBeInTheDocument();
+  });
+
+  it('renders word parts with fixed-width anchor', () => {
+    useReaderStore.getState().setWords(['testing']); // 7 chars, ORP at index 2
+    render(<RSVPDisplay />);
+
+    const leftPart = screen.getByTestId('rsvp-left');
+    const orpChar = screen.getByTestId('rsvp-orp-char');
+    const rightPart = screen.getByTestId('rsvp-right');
+
+    expect(leftPart).toHaveTextContent('te'); // before ORP
+    expect(orpChar).toHaveTextContent('s'); // ORP char
+    expect(rightPart).toHaveTextContent('ting'); // after ORP
+
+    // ORP char should have fixed width styling
+    expect(orpChar).toHaveStyle({ width: '0.65em' });
   });
 });

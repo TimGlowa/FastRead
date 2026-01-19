@@ -8,6 +8,23 @@
  * - Basic metadata extraction
  */
 
+// Polyfill for Promise.withResolvers (Safari doesn't support it yet)
+if (typeof Promise.withResolvers === 'undefined') {
+  Promise.withResolvers = function <T>(): {
+    promise: Promise<T>;
+    resolve: (value: T | PromiseLike<T>) => void;
+    reject: (reason?: unknown) => void;
+  } {
+    let resolve: (value: T | PromiseLike<T>) => void;
+    let reject: (reason?: unknown) => void;
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve: resolve!, reject: reject! };
+  };
+}
+
 import type {
   PDFDocumentProxy,
   TextItem,
@@ -28,20 +45,35 @@ export interface PDFMetadata {
   creationDate: Date | null;
 }
 
-// Lazy load pdfjs-dist to avoid SSR issues
-let pdfjsModule: typeof import('pdfjs-dist') | null = null;
+// Store references to loaded functions
+let getDocumentFn: typeof import('pdfjs-dist').getDocument | null = null;
+let workerConfigured = false;
 
 async function getPdfjs() {
-  if (pdfjsModule) return pdfjsModule;
+  if (getDocumentFn && workerConfigured) {
+    return { getDocument: getDocumentFn };
+  }
 
   // Only load in browser environment
   if (typeof window === 'undefined') {
     throw new Error('PDF extraction is only available in the browser');
   }
 
-  pdfjsModule = await import('pdfjs-dist');
-  pdfjsModule.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-  return pdfjsModule;
+  // Import named exports directly
+  const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
+
+  console.log('[PDF] Module loaded, getDocument type:', typeof getDocument);
+  console.log('[PDF] GlobalWorkerOptions:', GlobalWorkerOptions);
+
+  // Configure worker (v3 uses .js, not .mjs)
+  if (!workerConfigured) {
+    GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+    workerConfigured = true;
+    console.log('[PDF] Worker configured:', GlobalWorkerOptions.workerSrc);
+  }
+
+  getDocumentFn = getDocument;
+  return { getDocument };
 }
 
 /**
@@ -118,14 +150,41 @@ function parsePDFDate(dateStr: string | null): Date | null {
  * Extract text and metadata from a PDF file
  */
 export async function extractTextFromPDF(file: File): Promise<PDFExtractionResult> {
+  console.log('[PDF] Starting extraction for:', file.name, 'size:', file.size);
+
   // Dynamically load pdfjs to avoid SSR issues
-  const pdfjsLib = await getPdfjs();
+  let getDocument: typeof import('pdfjs-dist').getDocument;
+  try {
+    console.log('[PDF] Loading pdfjs-dist...');
+    const pdfjs = await getPdfjs();
+    getDocument = pdfjs.getDocument;
+    console.log('[PDF] pdfjs-dist loaded, getDocument:', typeof getDocument);
+  } catch (err) {
+    console.error('[PDF] Failed to load pdfjs-dist:', err);
+    throw err;
+  }
 
   // Convert File to ArrayBuffer
+  console.log('[PDF] Converting file to ArrayBuffer...');
   const arrayBuffer = await file.arrayBuffer();
+  console.log('[PDF] ArrayBuffer size:', arrayBuffer.byteLength);
 
   // Load PDF document
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  console.log('[PDF] Loading PDF document...');
+  let pdf;
+  try {
+    // Pass data as Uint8Array for better compatibility
+    const uint8Array = new Uint8Array(arrayBuffer);
+    console.log('[PDF] Created Uint8Array, length:', uint8Array.length);
+
+    const loadingTask = getDocument({ data: uint8Array });
+    console.log('[PDF] Loading task created:', loadingTask);
+    pdf = await loadingTask.promise;
+    console.log('[PDF] PDF loaded, pages:', pdf.numPages);
+  } catch (err) {
+    console.error('[PDF] Failed to load PDF document:', err);
+    throw err;
+  }
 
   // Extract metadata
   const metadataObj = await pdf.getMetadata();

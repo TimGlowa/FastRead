@@ -1,5 +1,153 @@
 # FastRead Development Log
 
+## 2026-01-19 09:35 - Increased Word Display Area
+
+### Summary
+Increased the reading stage dimensions to accommodate longer words that were spilling over.
+
+### Changes Made
+- Increased left/right word part widths from 220px to 280px each
+- Increased top/bottom boundary lines from w-80 (320px) to 600px
+- Total word display area now ~600px wide (280 + anchor + 280)
+
+### Files Modified
+- `src/components/rsvp/RSVPDisplay.tsx`
+
+### Test Results
+- Build succeeds
+
+---
+
+## 2026-01-19 09:30 - Mode Icon Simplification
+
+### Summary
+Simplified mode icon display - removed pulsing dot, now shows up arrow when speed is increasing.
+
+### Changes Made
+- Removed pulsing amber dot (unnecessary visual distraction)
+- Mode icon now changes to up arrow (↗) when speed is actively ramping
+- When not ramping, shows the mode icon:
+  - **Fixed mode (—)**: Horizontal dash
+  - **Training mode (↗)**: Up arrow
+  - **Demo mode (⚡)**: Lightning bolt
+
+### Behavior
+- Fixed mode: Always shows dash (—)
+- Training/Demo mode when idle: Shows mode icon (↗ or ⚡)
+- Training/Demo mode when ramping: Shows up arrow (↗) to indicate speed is increasing
+
+### Files Modified
+- `src/components/rsvp/ReaderControls.tsx`
+
+### Test Results
+- Build succeeds
+
+---
+
+## 2026-01-19 09:25 - Mode Icon & Character Spacing Fix
+
+### Summary
+Added mode indicator icon next to WPM display and enhanced character spacing fix for PDF text extraction.
+
+### Changes Made
+
+#### 1. Mode Icon Next to WPM Display (`ReaderControls.tsx`)
+- Added mode indicator icon that always appears next to WPM (e.g., "357 wpm —")
+- **Fixed mode (—)**: Horizontal dash icon
+- **Training mode (↗)**: Up arrow icon
+- **Demo mode (⚡)**: Lightning bolt icon
+- SpeedModeIndicator button remains as settings trigger
+
+#### 2. Enhanced Character Spacing (`text-cleaner.ts`)
+- Rewrote `fixLigatures()` with 5-pass approach:
+  - Pass 1: Explicit ligature patterns (ffi, ffl, ff, fi, fl)
+  - Pass 2: Iterative fix for single-letter splits (up to 5 iterations)
+  - Pass 3: Two-character splits with expanded word list
+  - Pass 4: Single-letter island cleanup
+  - Pass 5: Final adjacent single letter cleanup
+- Now catches complex patterns like "ent r epreneurship" → "entrepreneurship"
+
+### Files Modified
+- `src/components/rsvp/ReaderControls.tsx` - Mode icon next to WPM
+- `src/lib/text-processor/text-cleaner.ts` - Enhanced fixLigatures()
+
+### Test Results
+- All 325 tests passing
+- Build succeeds
+
+---
+
+## 2026-01-19 09:10 - Implementation Complete (No API)
+
+### Status
+PDF text extraction improvements complete using **regex-based approach only**. No external API integration.
+
+### Approach Decision
+Chose regex-based text cleaning instead of AI API for:
+- **Zero latency** - Instant processing
+- **No API costs** - Free to run
+- **Works offline** - No network required
+- **No dependencies** - Self-contained
+- **Privacy** - Text never leaves device
+
+### Note
+OpenAI API integration was considered but deferred. The regex-based fixes should handle most PDF extraction issues. If edge cases emerge that regex can't handle, AI-assisted cleaning can be added later.
+
+---
+
+## 2026-01-19 09:05 - PDF Text Extraction Improvements
+
+### Summary
+Fixed multiple issues with PDF text processing for RSVP reading. Implemented ligature fixing, em-dash handling, punctuation attachment, improved hyphenation detection, enhanced body content extraction, and changed text color to white.
+
+### Issues Fixed
+
+1. **Ligature Extraction** - PDF.js renders ligatures (fi, fl, ff, ffi, ffl) as separate characters with spaces. Added `fixLigatures()` to rejoin them.
+
+2. **Em-Dash Handling** - Em-dashes were appearing as separate words. Added `fixEmDashes()` to attach them to the preceding word.
+
+3. **Punctuation Spacing** - Apostrophes and punctuation were getting separated from words (e.g., "founder ' s"). Added `fixPunctuationSpacing()` to fix this.
+
+4. **Hyphenation** - Words split across PDF lines (e.g., "iden- tify") weren't being rejoined properly. Enhanced `fixLineBreakHyphenation()` with better heuristics to distinguish broken words from compound words.
+
+5. **Body Extraction** - Added `extractBodyContent()` to remove metadata before abstract and content after references section. Also removes journal headers, download info, and other first-page artifacts.
+
+6. **Text Color** - Changed word display from gray (`text-neutral-400`) to white (`text-white`) for better contrast. ORP character remains red.
+
+### Files Modified
+
+- `src/lib/text-processor/text-cleaner.ts`:
+  - Added `fixLigatures()` function
+  - Added `fixEmDashes()` function
+  - Added `fixPunctuationSpacing()` function
+  - Added `extractBodyContent()` function
+  - Updated `cleanAcademicText()` with correct processing order
+  - Updated `CleanTextOptions` interface
+
+- `src/lib/text-processor/tokenizer.ts`:
+  - Enhanced `fixLineBreakHyphenation()` with compound word detection
+
+- `src/lib/text-processor/index.ts`:
+  - Added exports for new functions
+
+- `src/components/rsvp/RSVPDisplay.tsx`:
+  - Changed text color from `text-neutral-400` to `text-white`
+
+### Processing Order
+The text cleaning now follows this order (order matters!):
+1. Fix ligatures (before other processing)
+2. Fix punctuation spacing
+3. Fix em-dashes
+4. Extract body content
+5. Existing cleaning functions (URLs, copyright, etc.)
+6. Final whitespace normalization
+
+### Test Results
+- All 325 tests passing
+- Build succeeds
+
+---
+
 ## 2026-01-19 08:49 - Session Checkpoint
 
 ### Summary

@@ -3,7 +3,7 @@
 import { useCallback, useState, useRef } from 'react';
 
 import { extractTextFromPDF, isPDFFile, formatFileSize } from '@/lib/pdf/extract-text';
-import { tokenize } from '@/lib/text-processor';
+import { tokenize, cleanAcademicText, extractMetadata } from '@/lib/text-processor';
 import { useReaderStore } from '@/stores';
 
 import type { ParsedDocument } from '@/types';
@@ -65,10 +65,21 @@ export function PDFUpload({
           throw new Error('No text content found in PDF. The file may be scanned or image-based.');
         }
 
+        setProgress('Cleaning text...');
+
+        // Clean the text (remove URLs, copyright, publisher codes, format citations)
+        const cleanedText = cleanAcademicText(result.text);
+
+        // Extract metadata
+        const metadata = extractMetadata(result.text, {
+          title: result.metadata.title,
+          author: result.metadata.author,
+        });
+
         setProgress('Processing text...');
 
-        // Tokenize the extracted text
-        const tokens = tokenize(result.text);
+        // Tokenize the cleaned text
+        const tokens = tokenize(cleanedText);
 
         if (tokens.length === 0) {
           throw new Error('Could not extract any words from the PDF');
@@ -78,23 +89,26 @@ export function PDFUpload({
         const document: ParsedDocument = {
           id: crypto.randomUUID(),
           originalFileName: file.name,
-          title: result.metadata.title || file.name.replace(/\.pdf$/i, ''),
-          authors: result.metadata.author ? [result.metadata.author] : null,
+          title: metadata.title || result.metadata.title || file.name.replace(/\.pdf$/i, ''),
+          authors: metadata.authors || (result.metadata.author ? [result.metadata.author] : null),
           sections: [
             {
               type: 'other',
               title: 'Full Document',
-              content: result.text,
+              content: cleanedText,
               startIndex: 0,
               endIndex: tokens.length - 1,
               included: true,
             },
           ],
           rawText: result.text,
-          cleanedText: result.text,
+          cleanedText: cleanedText,
           citations: [],
           parsingConfidence: 0.8,
           createdAt: new Date(),
+          // Store extracted metadata for display
+          journalCitation: metadata.journalCitation,
+          abstract: metadata.abstract,
         };
 
         // Update store

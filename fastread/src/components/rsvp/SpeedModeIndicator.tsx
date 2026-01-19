@@ -15,51 +15,19 @@ export interface SpeedModeIndicatorProps {
 }
 
 // ============================================================================
-// Mode Icons (SVG paths for minimal icons)
+// Mode Labels
 // ============================================================================
 
-const ModeIcon = ({ mode, className = '' }: { mode: SpeedControlMode; className?: string }) => {
-  switch (mode) {
-    case 'fixed':
-      // Dash icon - represents constant speed
-      return (
-        <svg
-          className={className}
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        >
-          <line x1="4" y1="8" x2="12" y2="8" />
-        </svg>
-      );
+const modeLabels: Record<SpeedControlMode, string> = {
+  fixed: 'Fixed',
+  training: 'Auto',
+  demo: 'Demo',
+};
 
-    case 'training':
-      // Gradual arrow - represents adaptive ramp
-      return (
-        <svg
-          className={className}
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 12 L12 4" />
-          <path d="M7 4 L12 4 L12 9" />
-        </svg>
-      );
-
-    case 'demo':
-      // Lightning bolt - represents aggressive ramp
-      return (
-        <svg className={className} viewBox="0 0 16 16" fill="currentColor">
-          <path d="M9 2L4 9h4l-1 5 5-7H8l1-5z" />
-        </svg>
-      );
-  }
+const modeDescriptions: Record<SpeedControlMode, string> = {
+  fixed: 'Constant speed - adjust manually',
+  training: 'Gradually increases to max speed',
+  demo: 'Fast ramp for demonstrations',
 };
 
 // ============================================================================
@@ -91,11 +59,13 @@ const PhaseIndicator = ({ phase }: { phase: RampPhase }) => {
 
 export function SpeedModeIndicator({ className = '', onModeChange }: SpeedModeIndicatorProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [maxSpeed, setMaxSpeed] = useState(700);
 
   // Store state
   const speedControlMode = useReaderStore((state) => state.speedControlMode);
   const rampPhase = useReaderStore((state) => state.rampPhase);
   const isPlaying = useReaderStore((state) => state.isPlaying);
+  const speed = useReaderStore((state) => state.speed);
   const setSpeedControlMode = useReaderStore((state) => state.setSpeedControlMode);
   const pause = useReaderStore((state) => state.pause);
 
@@ -107,101 +77,168 @@ export function SpeedModeIndicator({ className = '', onModeChange }: SpeedModeIn
         pause();
       }
 
-      setSpeedControlMode(mode);
+      // Pass config with maxSpeed for training/demo modes
+      if (mode === 'training') {
+        setSpeedControlMode(mode, {
+          startSpeed: speed,
+          maxSpeed: maxSpeed,
+          stabilizationWords: 200,
+          accelerationWords: 500,
+          stabilizationRate: 5,
+          accelerationRate: 15,
+          strainDropback: 50,
+          strainCooldownWords: 100,
+          pauseThresholdMs: 3000,
+          rewindThresholdWords: 20,
+        });
+      } else if (mode === 'demo') {
+        setSpeedControlMode(mode, {
+          startSpeed: speed,
+          maxSpeed: maxSpeed,
+          rampDurationSeconds: 35,
+          reducePunctuationPauses: true,
+          punctuationReductionFactor: 0.5,
+        });
+      } else {
+        setSpeedControlMode(mode, { speed });
+      }
+
       onModeChange?.(mode);
-      setIsExpanded(false);
     },
-    [isPlaying, pause, setSpeedControlMode, onModeChange]
+    [isPlaying, pause, setSpeedControlMode, onModeChange, speed, maxSpeed]
   );
+
+  // Handle max speed change
+  const handleMaxSpeedChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMax = parseInt(e.target.value, 10);
+    if (!isNaN(newMax) && newMax >= 200 && newMax <= 1500) {
+      setMaxSpeed(newMax);
+    }
+  }, []);
 
   // Toggle expansion
   const toggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  // Very discrete button styling
+  // Close panel
+  const closePanel = useCallback(() => {
+    setIsExpanded(false);
+  }, []);
+
+  // Button styling
   const indicatorButtonClass =
-    'relative p-1.5 rounded text-neutral-600 hover:text-neutral-400 hover:bg-neutral-800/30 transition-colors';
+    'relative px-2 py-1 rounded text-xs text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-colors border border-neutral-700/50';
 
   const modeButtonClass = (mode: SpeedControlMode) =>
-    `px-2 py-1 rounded text-xs transition-colors ${
+    `flex-1 px-3 py-2 rounded text-sm transition-colors ${
       speedControlMode === mode
-        ? 'text-neutral-300 bg-neutral-800/50'
-        : 'text-neutral-600 hover:text-neutral-400 hover:bg-neutral-800/30'
+        ? 'text-white bg-neutral-700'
+        : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'
     }`;
 
   return (
     <div className={`relative ${className}`}>
-      {/* Indicator button - always visible but minimal */}
+      {/* Indicator button - shows current mode clearly */}
       <button
         type="button"
         onClick={toggleExpanded}
         className={indicatorButtonClass}
-        aria-label={`Speed mode: ${speedControlMode}. Click to change.`}
+        aria-label={`Speed mode: ${modeLabels[speedControlMode]}. Click to change.`}
         aria-expanded={isExpanded}
         data-testid="speed-mode-indicator"
       >
-        <ModeIcon mode={speedControlMode} className="w-4 h-4" />
-        <PhaseIndicator phase={rampPhase} />
+        <span className="flex items-center gap-1">
+          <span>{modeLabels[speedControlMode]}</span>
+          {speedControlMode !== 'fixed' && (
+            <span className="text-neutral-600">→{maxSpeed}</span>
+          )}
+          <PhaseIndicator phase={rampPhase} />
+        </span>
       </button>
 
-      {/* Expanded mode selector */}
+      {/* Expanded settings panel */}
       {isExpanded && (
-        <div
-          className="absolute bottom-full left-0 mb-2 p-1 rounded-md bg-neutral-900/95 border border-neutral-800 shadow-lg"
-          role="menu"
-        >
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => handleModeSelect('fixed')}
-              className={modeButtonClass('fixed')}
-              role="menuitem"
-              aria-label="Fixed speed mode"
-              data-testid="mode-fixed-btn"
-            >
-              <span className="flex items-center gap-1.5">
-                <ModeIcon mode="fixed" className="w-3 h-3" />
-                <span>Fixed</span>
-              </span>
-            </button>
+        <>
+          {/* Backdrop to close */}
+          <div
+            className="fixed inset-0 z-10"
+            onClick={closePanel}
+            aria-hidden="true"
+          />
 
-            <button
-              type="button"
-              onClick={() => handleModeSelect('training')}
-              className={modeButtonClass('training')}
-              role="menuitem"
-              aria-label="Training ramp mode"
-              data-testid="mode-training-btn"
-            >
-              <span className="flex items-center gap-1.5">
-                <ModeIcon mode="training" className="w-3 h-3" />
-                <span>Train</span>
-              </span>
-            </button>
+          <div
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 rounded-lg bg-neutral-900 border border-neutral-700 shadow-xl z-20 min-w-[220px]"
+            role="dialog"
+            aria-label="Speed mode settings"
+          >
+            {/* Mode selector */}
+            <div className="mb-3">
+              <div className="text-xs text-neutral-500 mb-2">Speed Mode</div>
+              <div className="flex gap-1">
+                {(['fixed', 'training', 'demo'] as SpeedControlMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => handleModeSelect(mode)}
+                    className={modeButtonClass(mode)}
+                    aria-label={modeDescriptions[mode]}
+                    data-testid={`mode-${mode}-btn`}
+                  >
+                    {modeLabels[mode]}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => handleModeSelect('demo')}
-              className={modeButtonClass('demo')}
-              role="menuitem"
-              aria-label="Demo ramp mode"
-              data-testid="mode-demo-btn"
-            >
-              <span className="flex items-center gap-1.5">
-                <ModeIcon mode="demo" className="w-3 h-3" />
-                <span>Demo</span>
-              </span>
-            </button>
+            {/* Mode description */}
+            <div className="text-xs text-neutral-500 mb-3">
+              {modeDescriptions[speedControlMode]}
+            </div>
+
+            {/* Max speed setting - only for auto modes */}
+            {speedControlMode !== 'fixed' && (
+              <div className="border-t border-neutral-800 pt-3">
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="max-speed" className="text-xs text-neutral-500">
+                    Max Speed
+                  </label>
+                  <span className="text-sm text-neutral-300">{maxSpeed} wpm</span>
+                </div>
+                <input
+                  id="max-speed"
+                  type="range"
+                  min="200"
+                  max="1500"
+                  step="50"
+                  value={maxSpeed}
+                  onChange={handleMaxSpeedChange}
+                  className="w-full h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-neutral-400"
+                  data-testid="max-speed-slider"
+                />
+                <div className="flex justify-between text-[10px] text-neutral-600 mt-1">
+                  <span>200</span>
+                  <span>1500</span>
+                </div>
+              </div>
+            )}
+
+            {/* Apply button for auto modes */}
+            {speedControlMode !== 'fixed' && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleModeSelect(speedControlMode);
+                  closePanel();
+                }}
+                className="w-full mt-3 px-3 py-1.5 rounded text-sm text-neutral-300 bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                data-testid="apply-speed-settings-btn"
+              >
+                Apply
+              </button>
+            )}
           </div>
-
-          {/* Mode description - very subtle */}
-          <div className="mt-1 px-1 text-[10px] text-neutral-600">
-            {speedControlMode === 'fixed' && 'Constant speed'}
-            {speedControlMode === 'training' && 'Gradual adaptive ramp'}
-            {speedControlMode === 'demo' && 'Fast demo ramp'}
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

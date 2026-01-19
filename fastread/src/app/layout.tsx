@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import { Inter, Literata, JetBrains_Mono } from 'next/font/google';
 
 import type { Metadata, Viewport } from 'next';
@@ -46,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <Script src="/polyfills.js" strategy="beforeInteractive" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body

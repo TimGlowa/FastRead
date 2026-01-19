@@ -51,11 +51,42 @@ function detectPunctuation(word: string): PunctuationType | null {
 /**
  * Fix hyphenation from line breaks in PDFs
  * "meth-\nod" → "method"
- * "self-driving" → "self-driving" (preserved)
+ * "iden- tify" → "identify" (space instead of newline)
+ * "self-driving" → "self-driving" (preserved - compound word)
  */
 function fixLineBreakHyphenation(text: string): string {
   // Match hyphen followed by newline and continuation
-  return text.replace(/-\n\s*/g, '');
+  let result = text.replace(/-\n\s*/g, '');
+
+  // Match hyphen at end of word followed by space and lowercase continuation
+  // This catches PDF extraction where line breaks become spaces
+  // "iden- tify" → "identify" (broken word)
+  // "self-driving" → preserved (compound word, capitalized or longer suffix)
+  result = result.replace(
+    /(\w{2,})-\s+([a-z]{2,})/g,
+    (match, prefix, suffix) => {
+      // Heuristics to determine if this is a broken word or compound:
+      // 1. If suffix starts with uppercase, it's likely a compound (keep hyphen)
+      // 2. If suffix is a common word by itself, it might be a compound
+      // 3. Short prefixes with short suffixes are likely broken words
+
+      // Common compound word suffixes to preserve
+      const compoundSuffixes = [
+        'based', 'driven', 'related', 'oriented', 'specific', 'like',
+        'free', 'style', 'type', 'level', 'time', 'term', 'year',
+        'old', 'new', 'up', 'down', 'out', 'off', 'on', 'in',
+      ];
+
+      if (compoundSuffixes.includes(suffix.toLowerCase())) {
+        return match; // Keep hyphen for compound words
+      }
+
+      // If the combined word would be a common pattern, join them
+      return prefix + suffix;
+    }
+  );
+
+  return result;
 }
 
 /**

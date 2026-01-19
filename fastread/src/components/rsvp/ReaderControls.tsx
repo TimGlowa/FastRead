@@ -101,7 +101,7 @@ export function ReaderControls({
       role="group"
       aria-label="Reader controls"
     >
-      {/* Speed display with ramp indicator */}
+      {/* Speed display with mode indicator */}
       <div
         className={`text-center transition-opacity ${hideSpeedDisplay ? 'opacity-20' : ''}`}
         aria-live="polite"
@@ -113,28 +113,71 @@ export function ReaderControls({
           {speed}
         </span>
         <span className="text-xs text-neutral-600 ml-1 uppercase tracking-wide">wpm</span>
-        {/* Ramp indicator arrow - shows when ramping, hidden when paused or at plateau */}
-        {speedControlMode !== 'fixed' && (
-          <span
-            className={`inline-block ml-1.5 text-neutral-500 transition-opacity ${
-              showRampArrow ? 'opacity-100' : 'opacity-0'
-            } ${isBlinking ? 'animate-blink' : ''}`}
-            title={isRampPaused ? 'Ramp paused (press space to resume)' : 'Speed increasing'}
-            aria-label={showRampArrow ? 'Speed increasing' : 'Speed holding'}
-          >
+        {/* Mode indicator icon - shows mode, or up arrow when ramping */}
+        <span
+          className={`inline-block ml-2 text-neutral-500 ${isBlinking ? 'animate-blink' : ''}`}
+          title={
+            showRampArrow
+              ? 'Speed increasing'
+              : speedControlMode === 'fixed'
+                ? 'Fixed speed mode'
+                : speedControlMode === 'training'
+                  ? 'Training mode (auto-ramp)'
+                  : 'Demo mode (fast ramp)'
+          }
+          aria-label={showRampArrow ? 'Speed increasing' : `Mode: ${speedControlMode}`}
+          data-testid="mode-icon"
+        >
+          {/* Show up arrow when ramping, otherwise show mode icon */}
+          {showRampArrow ? (
+            // Up arrow when speed is increasing
             <svg
-              className="inline w-3 h-3"
-              viewBox="0 0 12 12"
+              className="inline w-4 h-4"
+              viewBox="0 0 16 16"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M6 9V3M3 5l3-3 3 3" />
+              <path d="M8 12V4M4 7l4-4 4 4" />
             </svg>
-          </span>
-        )}
+          ) : speedControlMode === 'fixed' ? (
+            // Dash icon for fixed mode
+            <svg
+              className="inline w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M4 8h8" />
+            </svg>
+          ) : speedControlMode === 'training' ? (
+            // Up arrow for training mode (when not ramping)
+            <svg
+              className="inline w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 12V4M4 7l4-4 4 4" />
+            </svg>
+          ) : (
+            // Lightning bolt for demo mode
+            <svg
+              className="inline w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+            >
+              <path d="M9.5 2L5 9h4l-1 5 5-7H9l.5-5z" />
+            </svg>
+          )}
+        </span>
       </div>
 
       {/* Main controls row - all discrete styling */}

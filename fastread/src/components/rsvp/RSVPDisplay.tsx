@@ -20,24 +20,25 @@ export function calculateORP(word: string): number {
   return 3;
 }
 
-/**
- * Font size mappings for different settings
- */
-const FONT_SIZES = {
-  small: 'text-[36px] sm:text-[42px] md:text-[48px] lg:text-[56px]',
-  medium: 'text-[48px] sm:text-[56px] md:text-[64px] lg:text-[72px]',
-  large: 'text-[56px] sm:text-[64px] md:text-[80px] lg:text-[96px]',
-  xlarge: 'text-[64px] sm:text-[80px] md:text-[96px] lg:text-[120px]',
-} as const;
-
 export interface RSVPDisplayProps {
   className?: string;
-  /** Show the upcoming word preview in bottom right */
+  /** Show the upcoming word preview (only when paused) */
   showPreview?: boolean;
-  /** Show WPM display */
+  /** Show WPM display (only when paused) */
   showWPM?: boolean;
 }
 
+/**
+ * RSVP Display with Vertically Framed Reading Stage
+ *
+ * Design principles:
+ * - Stage defined by TOP and BOTTOM horizontal boundaries only (no side walls)
+ * - Fixed anchor point at constant X coordinate (visual center)
+ * - Center ticks near top and bottom aligned with anchor
+ * - Word rendered as: left (right-aligned) + anchor char (fixed) + right (left-aligned)
+ * - Anchor character occupies fixed width to prevent jitter
+ * - Stage never moves, resizes, or animates
+ */
 export function RSVPDisplay({
   className = '',
   showPreview = true,
@@ -45,8 +46,8 @@ export function RSVPDisplay({
 }: RSVPDisplayProps) {
   const currentWordIndex = useReaderStore((state) => state.currentWordIndex);
   const words = useReaderStore((state) => state.words);
-  const settings = useReaderStore((state) => state.settings);
   const speed = useReaderStore((state) => state.speed);
+  const isPlaying = useReaderStore((state) => state.isPlaying);
 
   const currentWord = words[currentWordIndex] || '';
   const nextWord = words[currentWordIndex + 1] || '';
@@ -56,77 +57,156 @@ export function RSVPDisplay({
   const orpChar = currentWord[orpIndex] || '';
   const afterORP = currentWord.slice(orpIndex + 1);
 
-  const fontSizeClass = FONT_SIZES[settings.fontSize];
+  // Hide controls during reading
+  const showControls = !isPlaying;
+
+  // Fixed dimensions for the anchor character (prevents jitter)
+  const anchorWidth = '0.65em';
 
   if (words.length === 0) {
     return (
       <div
-        className={`relative flex items-center justify-center min-h-[400px] bg-black ${className}`}
+        className={`relative flex items-center justify-center min-h-[400px] bg-neutral-950 ${className}`}
         role="status"
         aria-label="No document loaded"
       >
-        <p className="text-gray-500 text-lg font-reading">Upload a document to start reading</p>
+        <p className="text-neutral-500 text-lg font-sans font-normal">
+          Upload a document to start reading
+        </p>
       </div>
     );
   }
 
   return (
     <div
-      className={`relative flex flex-col bg-black ${className}`}
+      className={`relative flex flex-col bg-neutral-950 ${className}`}
       role="region"
       aria-label="Speed reader display"
       aria-live="polite"
       aria-atomic="true"
     >
-      {/* Top border/frame line */}
-      <div className="h-px bg-gray-800" aria-hidden="true" />
+      {/* Vertically Framed Reading Stage */}
+      <div
+        className="flex-1 flex items-center justify-center min-h-[400px] select-none"
+        data-testid="rsvp-stage"
+      >
+        {/* Stage container with top/bottom boundaries only */}
+        <div className="relative flex flex-col items-center">
+          {/* Top boundary line */}
+          <div
+            className="w-full flex justify-center mb-8"
+            aria-hidden="true"
+          >
+            <div className="w-[600px] h-px bg-neutral-800" />
+          </div>
 
-      {/* Main display area */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] select-none relative">
-        {/* Top guide line */}
-        <div className="w-px h-16 bg-gray-800 mb-4" aria-hidden="true" />
+          {/* Top center tick - aligned with anchor */}
+          <div
+            className="absolute top-0 left-1/2 h-4 w-px bg-neutral-700"
+            style={{ transform: 'translateX(-50%)' }}
+            data-testid="rsvp-tick-top"
+            aria-hidden="true"
+          />
 
-        {/* Word display */}
-        <div
-          className={`font-reading ${fontSizeClass} tracking-wider leading-none`}
-          data-testid="rsvp-word"
-        >
-          <span className="text-white">{beforeORP}</span>
-          <span className="text-red-500" data-testid="rsvp-orp-char">
-            {orpChar}
-          </span>
-          <span className="text-white">{afterORP}</span>
+          {/* Word display area */}
+          <div
+            className="relative flex items-center justify-center"
+            style={{ height: '1.5em' }}
+            data-testid="rsvp-word"
+          >
+            {/*
+              Anchored Word Rendering:
+              - Left part: right-aligned, flows toward anchor
+              - Anchor (ORP): fixed position, fixed width
+              - Right part: left-aligned, flows away from anchor
+            */}
+
+            {/* Left part - right-aligned to anchor point */}
+            <span
+              className="text-white font-sans font-normal text-5xl tracking-normal text-right"
+              style={{
+                width: '280px',
+                display: 'inline-block',
+              }}
+              data-testid="rsvp-left"
+            >
+              {beforeORP}
+            </span>
+
+            {/* ORP character - THE FIXED ANCHOR POINT */}
+            {/* This character sits in the same pixel position for every word */}
+            <span
+              className="text-red-500 font-sans font-normal text-5xl tracking-normal"
+              data-testid="rsvp-orp-char"
+              style={{
+                display: 'inline-block',
+                textAlign: 'center',
+                width: anchorWidth,
+                minWidth: anchorWidth,
+                maxWidth: anchorWidth,
+              }}
+            >
+              {orpChar}
+            </span>
+
+            {/* Right part - left-aligned from anchor point */}
+            <span
+              className="text-white font-sans font-normal text-5xl tracking-normal text-left"
+              style={{
+                width: '280px',
+                display: 'inline-block',
+              }}
+              data-testid="rsvp-right"
+            >
+              {afterORP}
+            </span>
+          </div>
+
+          {/* Bottom center tick - aligned with anchor */}
+          <div
+            className="absolute bottom-0 left-1/2 h-4 w-px bg-neutral-700"
+            style={{ transform: 'translateX(-50%)' }}
+            data-testid="rsvp-tick-bottom"
+            aria-hidden="true"
+          />
+
+          {/* Bottom boundary line */}
+          <div
+            className="w-full flex justify-center mt-8"
+            aria-hidden="true"
+          >
+            <div className="w-[600px] h-px bg-neutral-800" />
+          </div>
         </div>
-
-        {/* Bottom guide line */}
-        <div className="w-px h-16 bg-gray-800 mt-4" aria-hidden="true" />
       </div>
 
-      {/* Bottom border/frame line */}
-      <div className="h-px bg-gray-800" aria-hidden="true" />
+      {/* Controls area - only visible when paused */}
+      {showControls && (
+        <div
+          className="absolute bottom-4 right-4 flex items-center gap-4 transition-opacity duration-150"
+          style={{ opacity: showControls ? 1 : 0 }}
+        >
+          {/* WPM display */}
+          {showWPM && (
+            <div
+              className="text-neutral-600 font-sans font-normal text-sm"
+              aria-label={`Current speed: ${speed} words per minute`}
+            >
+              {speed} wpm
+            </div>
+          )}
 
-      {/* Bottom info area */}
-      <div className="h-24 flex items-center justify-end px-8 relative">
-        {/* WPM display - positioned on the right */}
-        {showWPM && (
-          <div
-            className="text-gray-600 font-reading text-2xl italic"
-            aria-label={`Current speed: ${speed} words per minute`}
-          >
-            {speed} wpm
-          </div>
-        )}
-
-        {/* Upcoming word preview - small box in bottom right corner */}
-        {showPreview && nextWord && (
-          <div
-            className="absolute bottom-2 right-2 bg-gray-900 border border-gray-700 rounded px-3 py-1 text-xs text-gray-400 font-reading"
-            aria-label={`Next word: ${nextWord}`}
-          >
-            {nextWord}
-          </div>
-        )}
-      </div>
+          {/* Upcoming word preview */}
+          {showPreview && nextWord && (
+            <div
+              className="text-neutral-600 font-sans font-normal text-xs px-2 py-1 border border-neutral-800 rounded"
+              aria-label={`Next word: ${nextWord}`}
+            >
+              {nextWord}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
