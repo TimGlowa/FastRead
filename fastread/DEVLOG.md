@@ -1,6 +1,17 @@
 # FastRead Development Log
 
-## 2026-01-31 - v0.2.0: OCR Support for Scanned PDFs
+## Versioning Guidelines
+
+Follow [Semantic Versioning](https://semver.org/):
+- **MAJOR (x.0.0)**: Breaking changes, incompatible API changes, major rewrites
+- **MINOR (0.x.0)**: New features, backward-compatible functionality additions
+- **PATCH (0.0.x)**: Bug fixes, minor improvements, documentation updates
+
+**Every change must increment the version.** Update `package.json` accordingly.
+
+---
+
+## 2026-01-31 - v1.2.0: OCR Support for Scanned PDFs
 
 ### Summary
 Added automatic OCR for scanned/image-based PDFs using Tesseract.js. PDFs that contain only copyright watermarks (no searchable text) now get OCR'd to extract actual content.

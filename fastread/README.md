@@ -1,4 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FastRead
+
+RSVP speed reading for academic PDFs. Upload a PDF, extract text (with OCR for scanned documents), and read at configurable speeds.
+
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+
+| Change Type | Version Bump | Examples |
+|-------------|--------------|----------|
+| **MAJOR** (x.0.0) | Breaking changes | API changes, major rewrites, incompatible updates |
+| **MINOR** (0.x.0) | New features | New functionality, backward-compatible additions |
+| **PATCH** (0.0.x) | Bug fixes | Bug fixes, minor improvements, documentation |
+
+**Every change must increment the version** in `package.json`. See `DEVLOG.md` for change history.
 
 ## Getting Started
 
