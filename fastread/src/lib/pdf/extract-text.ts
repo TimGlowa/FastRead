@@ -2,8 +2,10 @@
  * PDF Text Extraction Service
  *
  * Uses pdfjs-dist to extract text from PDF files.
+ * Falls back to Tesseract.js OCR for scanned/image-based PDFs.
  * Handles:
  * - Text extraction from all pages
+ * - OCR for scanned PDFs
  * - Preserving paragraph structure
  * - Basic metadata extraction
  */
@@ -209,13 +211,81 @@ export async function extractTextFromPDF(file: File): Promise<PDFExtractionResul
   }
 
   // Join pages with double newline (paragraph separator)
-  const fullText = pageTexts.join('\n\n');
+  let fullText = pageTexts.join('\n\n');
+
+  // Check if we only got copyright watermark (scanned PDF)
+  const textWithoutWatermark = fullText
+    .replace(/reproduced with permission of the copyright owner\.?\s*further reproduction prohibited without permission\.?/gi, '')
+    .trim();
+
+  if (textWithoutWatermark === '' && pdf.numPages > 0) {
+    console.log('[PDF] Detected scanned PDF, falling back to OCR...');
+    fullText = await extractTextWithOCR(pdf);
+  }
 
   return {
     text: fullText,
     pageCount: pdf.numPages,
     metadata,
   };
+}
+
+/**
+ * Extract text from scanned PDF using Tesseract.js OCR
+ */
+async function extractTextWithOCR(pdf: PDFDocumentProxy): Promise<string> {
+  // Dynamically import Tesseract to avoid loading it unless needed
+  const { createWorker } = await import('tesseract.js');
+
+  console.log('[OCR] Initializing Tesseract worker...');
+  const worker = await createWorker('eng');
+
+  const pageTexts: string[] = [];
+
+  try {
+    for (let i = 1; i <= pdf.numPages; i++) {
+      console.log(`[OCR] Processing page ${i}/${pdf.numPages}...`);
+
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2.0 }); // Higher scale = better OCR
+
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        console.error('[OCR] Failed to get canvas context');
+        continue;
+      }
+
+      // Render PDF page to canvas
+      await page.render({
+        canvasContext: ctx,
+        viewport: viewport,
+      }).promise;
+
+      // Convert canvas to blob for Tesseract
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => resolve(b!), 'image/png');
+      });
+
+      // Run OCR
+      const { data } = await worker.recognize(blob);
+
+      if (data.text.trim()) {
+        pageTexts.push(data.text.trim());
+      }
+
+      console.log(`[OCR] Page ${i} extracted ${data.text.length} characters`);
+    }
+  } finally {
+    await worker.terminate();
+    console.log('[OCR] Worker terminated');
+  }
+
+  return pageTexts.join('\n\n');
 }
 
 /**

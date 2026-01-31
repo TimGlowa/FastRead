@@ -103,6 +103,40 @@ function normalizeWhitespace(text: string): string {
 }
 
 /**
+ * Split concatenated words that OCR may have stuck together
+ * Uses pattern matching to find common word boundaries
+ * e.g., "andamatrix" → "and a matrix"
+ */
+function splitConcatenatedWords(text: string): string {
+  let result = text;
+
+  // Common word endings followed by 'a' followed by common word starts
+  // "anda" pattern: words ending in consonant + 'a' + word starting with consonant
+  // e.g., "andamatrix" → "and a matrix"
+  result = result.replace(
+    /\b(and|or|but|the|for|with|from|that|this|which|has|have|had|was|were|been|are|is|be|can|may|will|would|should|could|must|shall|not|all|some|any|each|every|no|one|two)a([b-df-hj-np-tv-z][a-z]{2,})\b/gi,
+    '$1 a $2'
+  );
+
+  // Same but for capital A starting a word after another word
+  // "Aset" at start of concatenation - check if preceded by word ending
+  result = result.replace(
+    /\b([a-z]{2,})A([a-z]{2,})\b/g,
+    (match, before, after) => {
+      // Check if 'before' ends like a complete word
+      const wordEndings = ['ed', 'ing', 'tion', 'sion', 'ness', 'ment', 'able', 'ible', 'ous', 'ive', 'al', 'ly', 'er', 'or', 'ist', 'ism', 'ty', 'ry'];
+      const endsLikeWord = wordEndings.some(e => before.endsWith(e)) || before.length >= 3;
+      if (endsLikeWord && after.length >= 2) {
+        return before + ' A' + after;
+      }
+      return match;
+    }
+  );
+
+  return result;
+}
+
+/**
  * Split text into paragraphs
  */
 function splitIntoParagraphs(text: string): string[] {
@@ -151,10 +185,13 @@ export function tokenize(text: string): Token[] {
   // Step 2: Normalize whitespace
   processed = normalizeWhitespace(processed);
 
-  // Step 3: Split into paragraphs
+  // Step 3: Split concatenated words (common in OCR output)
+  processed = splitConcatenatedWords(processed);
+
+  // Step 4: Split into paragraphs
   const paragraphs = splitIntoParagraphs(processed);
 
-  // Step 4: Tokenize each paragraph
+  // Step 5: Tokenize each paragraph
   const allTokens: Token[] = [];
   let currentIndex = 0;
 

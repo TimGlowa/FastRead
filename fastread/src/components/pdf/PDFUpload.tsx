@@ -65,19 +65,6 @@ export function PDFUpload({
           throw new Error('No text content found in PDF. The file may be scanned or image-based.');
         }
 
-        // Detect image-only PDFs with only copyright watermark (common in ProQuest/library scans)
-        // Remove the watermark text and check if anything remains
-        const textWithoutWatermark = result.text
-          .replace(/reproduced with permission of the copyright owner\.?\s*further reproduction prohibited without permission\.?/gi, '')
-          .trim();
-        if (textWithoutWatermark === '') {
-          throw new Error(
-            'This PDF appears to be a scanned image without searchable text. ' +
-            'Only a copyright watermark was found. Please use an OCR tool to convert it first, ' +
-            'or download a text-based version of the article.'
-          );
-        }
-
         setProgress('Cleaning text...');
 
         // Clean the text (remove URLs, copyright, publisher codes, format citations)

@@ -1,5 +1,39 @@
 # FastRead Development Log
 
+## 2026-01-31 - v0.2.0: OCR Support for Scanned PDFs
+
+### Summary
+Added automatic OCR for scanned/image-based PDFs using Tesseract.js. PDFs that contain only copyright watermarks (no searchable text) now get OCR'd to extract actual content.
+
+### Changes Made
+
+**`src/lib/pdf/extract-text.ts`:**
+- Added `extractTextWithOCR()` function using Tesseract.js
+- Auto-detects scanned PDFs by checking if only copyright watermark exists
+- Renders each PDF page to canvas at 2x scale for better OCR accuracy
+- Dynamically imports Tesseract only when needed (lazy loading)
+
+**`src/lib/text-processor/tokenizer.ts`:**
+- Added `splitConcatenatedWords()` to handle OCR artifacts
+- Splits words that get stuck together (e.g., "andamatrix" → "and a matrix")
+- Preserves legitimate words like "organization", "examination"
+
+**`package.json`:**
+- Added tesseract.js dependency
+- Version bump to 0.2.0
+
+### Technical Notes
+- OCR is slow (~2-5 seconds per page) but runs only for scanned PDFs
+- Uses canvas rendering at 2x viewport scale for better OCR accuracy
+- Tesseract worker is terminated after use to free memory
+
+### Files Modified
+- `src/lib/pdf/extract-text.ts`
+- `src/lib/text-processor/tokenizer.ts`
+- `package.json`
+
+---
+
 ## 2026-01-31 - v0.1.1: Detect Image-Only PDFs
 
 ### Summary
