@@ -66,8 +66,11 @@ export function PDFUpload({
         }
 
         // Detect image-only PDFs with only copyright watermark (common in ProQuest/library scans)
-        const copyrightOnlyPattern = /^(\s*(reproduced with permission|further reproduction prohibited)[^a-z]*\s*)+$/i;
-        if (copyrightOnlyPattern.test(result.text.trim())) {
+        // Remove the watermark text and check if anything remains
+        const textWithoutWatermark = result.text
+          .replace(/reproduced with permission of the copyright owner\.?\s*further reproduction prohibited without permission\.?/gi, '')
+          .trim();
+        if (textWithoutWatermark === '') {
           throw new Error(
             'This PDF appears to be a scanned image without searchable text. ' +
             'Only a copyright watermark was found. Please use an OCR tool to convert it first, ' +
