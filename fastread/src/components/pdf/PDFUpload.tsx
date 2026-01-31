@@ -65,6 +65,16 @@ export function PDFUpload({
           throw new Error('No text content found in PDF. The file may be scanned or image-based.');
         }
 
+        // Detect image-only PDFs with only copyright watermark (common in ProQuest/library scans)
+        const copyrightOnlyPattern = /^(\s*(reproduced with permission|further reproduction prohibited)[^a-z]*\s*)+$/i;
+        if (copyrightOnlyPattern.test(result.text.trim())) {
+          throw new Error(
+            'This PDF appears to be a scanned image without searchable text. ' +
+            'Only a copyright watermark was found. Please use an OCR tool to convert it first, ' +
+            'or download a text-based version of the article.'
+          );
+        }
+
         setProgress('Cleaning text...');
 
         // Clean the text (remove URLs, copyright, publisher codes, format citations)

@@ -1,5 +1,106 @@
 # FastRead Development Log
 
+## 2026-01-31 - v0.1.1: Detect Image-Only PDFs
+
+### Summary
+Fixed issue where scanned/image-based PDFs (common from ProQuest and library databases) would show only a copyright watermark repeated endlessly instead of article content.
+
+### Root Cause
+PDFs from academic databases like ProQuest are often scanned images converted with tools like `image2pdf`. These contain no searchable text layer - only a copyright watermark overlay:
+> "Reproduced with permission of the copyright owner. Further reproduction prohibited without permission."
+
+PDF.js extracts only this watermark, leading to the same sentence displayed on loop.
+
+### Changes Made
+
+**`src/components/pdf/PDFUpload.tsx`:**
+- Added detection for image-only PDFs that contain only copyright watermark
+- Shows clear error message explaining the PDF needs OCR or a text-based version
+
+**`src/lib/text-processor/text-cleaner.ts`:**
+- Added ProQuest copyright watermark pattern to `removeCopyrightNotices()`
+- Ensures watermarks are stripped from PDFs that do have real content
+
+### Files Modified
+- `src/components/pdf/PDFUpload.tsx`
+- `src/lib/text-processor/text-cleaner.ts`
+- `package.json` (version bump to 0.1.1)
+
+---
+
+## 2026-01-27 - Azure Deployment Lessons Learned (from BuzzBuilder)
+
+### Summary
+Reference notes from deploying BuzzBuilder to Azure App Service (Jan 8-9, 2026). These lessons apply directly to FastRead's upcoming Azure deployment. The BuzzBuilder deploy consumed 20+ commits before the app was live due to invisible failures. Documenting here so we don't repeat these mistakes.
+
+### Problem Chain 1: Oryx Build System Interference
+Azure App Service has a built-in build system called Oryx that auto-detects Node.js apps and tries to manage the build/start process. Even with a custom startup command (`node server.js`), Oryx was:
+- Detecting an old `oryx-manifest.toml` left in `/home/site/wwwroot`
+- Ignoring the `WEBSITE_STARTUP_COMMAND` setting
+- Extracting its own `node_modules.tar.gz` and running `npm start` instead
+
+**Fix:** SSH into Kudu console, delete `oryx-manifest.toml` and `node_modules.tar.gz`. Set env vars:
+```
+ENABLE_ORYX_BUILD=false
+SCM_DO_BUILD_DURING_DEPLOYMENT=false
+```
+
+### Problem Chain 2: Hidden .next Folder Not Copied
+GitHub Actions workflow used `cp -r .next/standalone/* ./deploy/` to package the standalone build. In Bash, `*` does not match hidden files/directories (those starting with `.`). The `.next` folder inside `standalone/` (which contains the critical `BUILD_ID` file) was silently skipped.
+
+The app deployed but Next.js crashed with: `Error: Could not find a production build in the './.next' directory`
+
+**Fix:** Add `shopt -s dotglob` before the copy command to make `*` include hidden files.
+
+### Problem Chain 3: .next Folder Overwritten
+After fixing dotglob, a subsequent line ran `mkdir -p ./deploy/.next` before copying static files. This replaced the existing `.next` folder (correctly copied from standalone), destroying `BUILD_ID` and server files.
+
+**Fix:** Remove `mkdir -p` and copy static files directly into the existing folder:
+```bash
+cp -r .next/static ./deploy/.next/
+```
+
+### Problem Chain 4: OAuth Post-Deployment Issues
+After the app was live, auth issues cascaded:
+- Auth.js v5 requires `trustHost: true` behind reverse proxies like Azure App Service
+- OAuth callback URLs need to be registered for the production domain (not just localhost)
+- JWT callback must persist email from the provider for session lookups
+- React Hooks ordering violations (useState/useEffect after early returns) caused Error #310
+
+### Prevention Checklist for FastRead Azure Deploy
+
+1. **Test standalone build locally first:**
+   ```bash
+   npm run build
+   node .next/standalone/server.js
+   ```
+
+2. **Use a Dockerfile** - Removes Oryx entirely. You control exactly what's copied and how the app starts.
+
+3. **Pre-deployment checklist for new platforms:**
+   - Register all production OAuth callback URLs
+   - Set `trustHost: true` for apps behind reverse proxies
+   - Verify all environment variables are set
+   - Test auth flows end-to-end on the production URL
+
+4. **Validate deployment package in CI:**
+   ```yaml
+   - name: Verify deployment package
+     run: |
+       echo "Checking for required files..."
+       test -f ./deploy/server.js || (echo "MISSING: server.js" && exit 1)
+       test -f ./deploy/.next/BUILD_ID || (echo "MISSING: .next/BUILD_ID" && exit 1)
+       test -d ./deploy/.next/static || (echo "MISSING: .next/static" && exit 1)
+       ls -la ./deploy/.next/
+   ```
+
+5. **Bash glob awareness:** Always use `shopt -s dotglob` or explicit copies for dotfiles.
+
+### Core Lesson
+Most time was lost to invisible failures -- commands that succeeded but didn't do what was expected (silent glob misses, Oryx silently taking over, `mkdir -p` silently replacing a directory). Add explicit verification steps after each operation.
+
+---
+
 ## 2026-01-19 09:35 - Increased Word Display Area
 
 ### Summary

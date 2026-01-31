@@ -32,6 +32,8 @@ function removeURLs(text: string): string {
  */
 function removeCopyrightNotices(text: string): string {
   const patterns = [
+    // ProQuest/library database copyright watermarks
+    /reproduced\s+with\s+permission\s+of\s+the\s+copyright\s+owner\.?\s*further\s+reproduction\s+prohibited\s+without\s+permission\.?/gi,
     // Copyright symbol patterns
     /©\s*\d{4}[^.]*\./gi,
     /\(c\)\s*\d{4}[^.]*\./gi,
